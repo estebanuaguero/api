@@ -301,13 +301,15 @@ CREATE OR REPLACE VIEW yacare.v_person AS
 		pp.cuil_cuit,
 		pp.blood_group_id, 
 		pp.blood_factor_id,
-		pp.file_number
+		pp.comment, 
+		pp.file_number,
+		pp.education_level_type_id 
 		
 
 		/*
 		
 		--
-		pp.comment, 
+		
 		
 		
 		
@@ -318,7 +320,7 @@ CREATE OR REPLACE VIEW yacare.v_person AS
 		--pp.document_object_id, 
 		--pp.married, 
 		
-		pp.education_level_type_id 
+		
 		--pp.finished
 		*/
 		
@@ -670,6 +672,8 @@ CREATE OR REPLACE VIEW yacare.v_person_json AS
 
 SELECT	person.id,
 	person.file_number, 
+	person.comment, 
+	education_level_type_id,
 	('{'
 	------------------------------------------------------------------------------------------------
 		|| yacare.ja('id', person.id, true)
@@ -818,8 +822,11 @@ DROP FUNCTION IF EXISTS yacare.f_person_by_id(person_id character varying) CASCA
 CREATE OR REPLACE FUNCTION yacare.f_person_by_id(person_id character varying) RETURNS SETOF character varying AS $BODY$
 	SELECT 	person.json::VARCHAR 
 	FROM 	yacare.v_person_json AS person 
-	WHERE person.id = $1
+	WHERE 	person.id = $1
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+
+SELECT * FROM yacare.f_person_by_id('ff80818144e5b96d0144e5b9f28e00a0');
 
 -- =============================================================================================================================
 
@@ -992,11 +999,36 @@ CREATE OR REPLACE VIEW yacare.v_admission_act_enrollment AS
 
 -- =============================================================================================================================
 
+DROP VIEW IF EXISTS yacare.v_education_level_type CASCADE; 
+
+CREATE OR REPLACE VIEW yacare.v_education_level_type AS
+
+	SELECT 	*,
+		(
+			'{'
+				|| yacare.ja('id', TRIM(education_level_type.id), true)
+				|| yacare.ja('erased', (NOT education_level_type.state_enable)::BOOLEAN)
+				|| yacare.ja('code', TRIM(education_level_type.code))
+				|| yacare.ja('name', TRIM(education_level_type.name))			
+				|| yacare.ja('description', TRIM(education_level_type.comment))
+				
+			|| '}'
+		)::VARCHAR AS json
+	FROM 	yacare.education_level_type;
+	
+-- SELECT * FROM yacare.v_education_level_type;	
+
+-- select * from yacare.education_level_type 
+
+
+-- =============================================================================================================================
+
 DROP VIEW IF EXISTS yacare.v_student CASCADE; 
 
 CREATE OR REPLACE VIEW yacare.v_student AS
 
-	SELECT	person.id,
+	SELECT	person.id AS person_id,
+		student.id AS student_id,
 		('{'
 		------------------------------------------------------------------------------------------------
 			|| yacare.ja('id', student.id, true)
@@ -1044,15 +1076,77 @@ CREATE OR REPLACE VIEW yacare.v_student AS
 
 -- =============================================================================================================================
 
-DROP FUNCTION IF EXISTS yacare.f_student_by_id(student_id character varying) CASCADE;
+DROP FUNCTION IF EXISTS yacare.f_student_by_person_id(person_id character varying) CASCADE;
 
-CREATE OR REPLACE FUNCTION yacare.f_student_by_id(person_id character varying) RETURNS SETOF character varying AS $BODY$
+CREATE OR REPLACE FUNCTION yacare.f_student_by_person_id(person_id character varying) RETURNS SETOF character varying AS $BODY$
 	SELECT 	student.json::VARCHAR 
 	FROM 	yacare.v_student AS student 
-	WHERE student.id = $1
+	WHERE 	student.person_id = $1
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
-SELECT * FROM yacare.f_student_by_id('ff80818144e5b96d0144e5b9f28e00a0');
+-- SELECT * FROM yacare.f_student_by_id('ff80818144e5b96d0144e5b9f28e00a0');
+
+-- =============================================================================================================================
+
+DROP VIEW IF EXISTS yacare.v_legal_guardian CASCADE; 
+
+CREATE OR REPLACE VIEW yacare.v_legal_guardian AS
+
+	SELECT	person.id,
+		('{'
+		------------------------------------------------------------------------------------------------
+			|| yacare.ja('person', person.json, false, true)			
+			|| yacare.ja('educationLevel', education_level_type.json, false, false)			
+			|| yacare.ja('comment', TRIM(person.comment))		
+			|| yacare.ja('summary', null::VARCHAR)
+			/*
+			|| yacare.ja('students', 
+				(
+					SELECT 	COALESCE('[ ' || string_agg(enrollment.json,', ' ORDER BY enrollment.year_calendar) || ']', 'null')
+					FROM	yacare.v_admission_act_enrollment enrollment  
+					WHERE 	student.id = enrollment.student_id						
+					--LIMIT 1
+					--OFFSET 0
+				)::VARCHAR
+			, false, false)			
+			*/
+		------------------------------------------------------------------------------------------------
+		|| '}')::VARCHAR AS json	
+	FROM	yacare.v_person_json AS person
+	LEFT JOIN yacare.v_education_level_type education_level_type
+		ON person.education_level_type_id = education_level_type.id
+	WHERE	(
+			SELECT 	COUNT(*) 
+			FROM 	yacare.family_relationship fr
+				--JOIN	yacare.physical_person_family_relationship_list ppfrl
+				--	ON 	ppfrl.family_relationship_id = fr.id
+				--	JOIN 	yacare.physical_person pp_child	
+				--		ON ppfrl.physical_person_id = pp_child.id
+			WHERE	fr.physical_person_id = person.id
+				AND 	fr.legal_responsibility = true
+		) > 0	
+		--AND	person.id = '31438562-21c3-47fa-a211-6c97262894b5'
+		;			
+	--JOIN	yacare.family_relationship fr
+	--	ON 	fr.physical_person_id = person.id
+	--	AND 	fr.legal_responsibility = true;
+	--JOIN	yacare.physical_person_family_relationship_list ppfrl
+	--	ON 	ppfrl.family_relationship_id = fr.id
+	--	JOIN 	yacare.physical_person pp_child	
+	--		ON ppfrl.physical_person_id = pp_child.id		
+	--WHERE person.id = 'ff80818144e5b96d0144e5b9f28e00a0'
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_legal_guardian_by_person_id(person_id character varying) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_legal_guardian_by_person_id(person_id character varying) RETURNS SETOF character varying AS $BODY$
+	SELECT 	legal_guardian.json::VARCHAR 
+	FROM 	yacare.v_legal_guardian AS legal_guardian 
+	WHERE 	legal_guardian.id = $1
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+SELECT * FROM yacare.f_legal_guardian_by_person_id('31438562-21c3-47fa-a211-6c97262894b5');
 
 -- =============================================================================================================================
 -- =============================================================================================================================
