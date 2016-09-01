@@ -21,6 +21,78 @@ produces:
 paths:
 
   # ------------------------------------------------------------------------------------------------------------------------
+  #                                                   API  Tipo de Documento de Identidad de una Persona
+  # ------------------------------------------------------------------------------------------------------------------------
+  /IdentityTypes:
+    get:
+      summary: IdentityTypes
+      description: Tipo de Documento de Identidad de una Persona. Ver https://es.wikipedia.org/wiki/Documento_de_identidad y https://en.wikipedia.org/wiki/Identity_document
+      parameters:
+        - name: offset
+          in: query
+          type: integer
+          format: int32
+          description: Desplazamiento de la lista de resultados devueltos por esta cantidad. El valor predeterminado es cero.
+        - name: limit
+          in: query
+          type: integer
+          format: int32
+          description: Número de objetos que se recuperará. El valor predeterminado es 5, el máximo es 100.
+      responses:
+        200:
+          description: Un listado de todos los tipos de documentos de identidad
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/IdentityType'
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Error"      
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /IdentityTypes/{id}:
+    get:
+      summary: "Tipo de documento de identidad por id"
+      description: Tipo de Documento de Identidad de una Persona. Ver https://es.wikipedia.org/wiki/Documento_de_identidad y https://en.wikipedia.org/wiki/Identity_document
+      operationId: "identityTypeIdGet"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "identificador del tipo de documento de identidad"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Tipo de documento de identidad por id"
+          schema:
+            $ref: "#/definitions/LegalGuardian"
+        404:
+          description: "Recurso no encontrado"
+          schema:
+            $ref: "#/definitions/Error"
+        422:
+          description: "Id inválido"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Error interno del servidor"
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"            
+  
+
+  # ------------------------------------------------------------------------------------------------------------------------
   #                                                   API Tutor o Responsable Legal de Estudiantes
   # ------------------------------------------------------------------------------------------------------------------------
   /LegalGuardians:
