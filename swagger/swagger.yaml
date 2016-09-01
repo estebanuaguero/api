@@ -390,13 +390,13 @@ definitions:
       urlPhoto:
         type: string
         description: URL de la foto personal.
-      names:  
+      givenNames:  
         type: array
         description: Nombres de la persona, como por ejemplo Diego, Pablo
         items: {
           type: string
         }
-      lastNames:  
+      surnames:  
         type: array
         description: Apellidos de la persona, como por ejemplo Mansilla, Cendra
         items: {
@@ -409,7 +409,7 @@ definitions:
         title: Birth
         description: Datos referentes al nacimiento de la persona.
         properties:
-          birthDate:
+          dateOfBirth:
             type: string
             format: date-time
             description: Fecha de nacimiento de la persona. Definido en base a RFC3339, ver https://xml2rfc.tools.ietf.org/public/rfc/html/rfc3339.html#anchor14  
@@ -420,7 +420,7 @@ definitions:
           fullAge:
             type: string
             description: Edad de la persona, definida en años, meses y días, por ejemplo 14 años, 1 mes y 16 días.
-          geoLocation:
+          placeOfBirth:
             $ref: '#/definitions/GeoLocation' 
           summary:
             type: string
@@ -428,7 +428,7 @@ definitions:
       nationalities:
         type: object
         title: Nationality
-        description: NAcionalidades de la persona.
+        description: Nacionalidades de la persona.
         properties:
           mainNationality:
             $ref: '#/definitions/Nationality'  
