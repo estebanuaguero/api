@@ -531,6 +531,20 @@ CREATE OR REPLACE VIEW yacare.v_identity_type AS
 		)::VARCHAR AS json
 	FROM	yacare.v_identification_type_person t;
 
+	-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_identity_type(offsetArg INTEGER, limitArg INTEGER) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_identity_type(offsetArg INTEGER, limitArg INTEGER) RETURNS SETOF character varying AS $BODY$
+	SELECT 	identity_type.json::VARCHAR 
+	FROM 	yacare.v_identity_type AS identity_type
+	OFFSET $1 
+	LIMIT $2
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_identity_type(0, 100);
+
 	
 -- =============================================================================================================================
 
@@ -678,15 +692,15 @@ SELECT	person.id,
 	------------------------------------------------------------------------------------------------
 		|| yacare.ja('id', person.id, true)
 		|| yacare.ja('erased', person.erased)
-		|| yacare.ja('names', person.names, false, false)
-		|| yacare.ja('lastNames', person.last_names, false, false)
+		|| yacare.ja('givenNames', person.names, false, false)
+		|| yacare.ja('surnames', person.last_names, false, false)
 		|| yacare.ja('gender', gender.json, false, false)
 		|| ', "birth":{'
-			|| yacare.ja('birthDate', birth_date, true)
+			|| yacare.ja('dateOfBirth', birth_date, true)
 			|| yacare.ja('age', date_part('year',age(birth_date::TIMESTAMP))::INTEGER)
 			|| yacare.ja('fullAge', REPLACE(REPLACE(REPLACE(REPLACE(age(birth_date::TIMESTAMP)::VARCHAR, 'years', 'años'), 'mons', 'meses'), 'days', 'días'), 'mon', 'mes')::VARCHAR)
 			--|| yacare.ja('fullAge', REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(age('2015-08-17'::TIMESTAMP)::VARCHAR, 'years', 'años'), 'mons', 'meses'), 'days', 'días'), 'mon', 'mes'), 'day', 'día'), 'year', 'año')::VARCHAR)
-			|| yacare.ja('geoLocation', COALESCE(geo_location.json, '{}')::VARCHAR, false, false)
+			|| yacare.ja('placeOfBirth', COALESCE(geo_location.json, '{}')::VARCHAR, false, false)
 			--|| ', "geoLocation":' || COALESCE(geo_location.json, '{}')			
 		|| '}'
 		|| ', "nationalities":{'
@@ -917,13 +931,13 @@ CREATE OR REPLACE VIEW yacare.v_period AS
 			|| yacare.ja('erased', (NOT period.state_enable)::BOOLEAN)
 			|| yacare.ja('code', period.number)			
 			|| yacare.ja('description', TRIM(period.comment))
-			|| ', "cycle":' || COALESCE('{'
+			/*|| ', "cycle":' || COALESCE('{'
 				|| yacare.ja('id', TRIM(cycle.id), true)
 				|| yacare.ja('erased', (NOT cycle.state_enable)::BOOLEAN)
 				|| yacare.ja('code', cycle.number)
 				|| yacare.ja('name', TRIM(cycle.name))			
 				|| yacare.ja('description', TRIM(cycle.comment))		
-			|| '}', 'null')
+			|| '}', 'null')*/
 		|| '}'
 		)::VARCHAR AS json
 	FROM 	yacare.cycle
