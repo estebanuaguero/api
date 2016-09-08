@@ -536,14 +536,17 @@ CREATE OR REPLACE VIEW yacare.v_identity_type AS
 DROP FUNCTION IF EXISTS yacare.f_identity_type(offsetArg INTEGER, limitArg INTEGER) CASCADE;
 
 CREATE OR REPLACE FUNCTION yacare.f_identity_type(offsetArg INTEGER, limitArg INTEGER) RETURNS SETOF character varying AS $BODY$
-	SELECT 	identity_type.json::VARCHAR 
+
+	SELECT 	COALESCE('[ ' || string_agg(identity_type.json,', ' ORDER BY identity_type.id) || ']', 'null')	
 	FROM 	yacare.v_identity_type AS identity_type
 	OFFSET $1 
-	LIMIT $2
+	LIMIT $2	
 	
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
 -- SELECT * FROM yacare.f_identity_type(0, 100);
+
+
 
 	
 -- =============================================================================================================================
