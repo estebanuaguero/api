@@ -673,6 +673,35 @@ definitions:
       summary:
         type: string
         description: Presentación resumida de la cobertura.         
+        
+        
+  # ------------------------------------------------------------------------------------------------------------------------
+  #                                                   Tipo de Documento de Identidad de una Persona
+  # ------------------------------------------------------------------------------------------------------------------------     
+  PhoneType:
+    type: object
+    title: PhoneType
+    description: Tipo de teléfono. Ej. Casa, Móvil, Trabajo, Otro.
+    properties:
+      id:
+        type: string
+        description: Identificador (UUID) único del tipo de teléfono.   
+      erased:
+        type: boolean
+        description: Determina si el tipo de teléfono fue borrado o deshabilitado.
+      code:
+        type: string
+        description: Código del tipo de teléfono.
+      name:
+        type: string
+        description: Nombre del tipo de teléfono. 
+      description:
+        type: string
+        description: Descripción del tipo de teléfono.   
+      summary:
+        type: string
+        description: Presentación resumida del tipo de teléfono.   
+      
             
   # ------------------------------------------------------------------------------------------------------------------------
   #                                                  Número de Teléfono
@@ -702,6 +731,8 @@ definitions:
       summary:
         type: string
         description: Presentación resumida del teléfono.    
+      phoneType:
+        $ref: '#/definitions/PhoneType'         
         
   # ------------------------------------------------------------------------------------------------------------------------
   #                                                  Correo Electrónico
