@@ -23,9 +23,9 @@ paths:
   # ------------------------------------------------------------------------------------------------------------------------
   #                                                   API  Tipo de Documento de Identidad de una Persona
   # ------------------------------------------------------------------------------------------------------------------------
-  /IdentityTypes:
+  /identity_types:
     get:
-      summary: IdentityTypes
+      summary: Tipos de Documentos de Identidad de personas
       description: Tipo de Documento de Identidad de una Persona. Ver https://es.wikipedia.org/wiki/Documento_de_identidad y https://en.wikipedia.org/wiki/Identity_document
       parameters:
         - name: offset
@@ -58,7 +58,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
             
-  /IdentityTypes/{id}:
+  /identity_types/{id}:
     get:
       summary: "Tipo de documento de identidad por id"
       description: Tipo de Documento de Identidad de una Persona. Ver https://es.wikipedia.org/wiki/Documento_de_identidad y https://en.wikipedia.org/wiki/Identity_document
@@ -95,9 +95,9 @@ paths:
   # ------------------------------------------------------------------------------------------------------------------------
   #                                                   API Tutor o Responsable Legal de Estudiantes
   # ------------------------------------------------------------------------------------------------------------------------
-  /LegalGuardians:
+  /legal_guardians:
     get:
-      summary: LegalGuardians
+      summary: Tutores
       description: Tutor o Responsable Legal de Estudiantes, también llamados tutores legales, o padres. 
       parameters:
         - name: offset
@@ -130,7 +130,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
             
-  /LegalGuardians/{id}:
+  /legal_guardians/{id}:
     get:
       summary: "Tutor por id"
       description: Tutor o Responsable Legal de Estudiantes, también llamados tutores legales, o padres. 
@@ -210,10 +210,10 @@ paths:
             
   /students/{id}:
     get:
-      tags:
-        - Estudiante
-        - Expediente Académico
-        - Legajo Académico
+      #tags:
+      #  - Estudiante
+      #  - Expediente Académico
+      #  - Legajo Académico
       summary: "Estudiante por id"
       description: " El endpoint de Estudiantes devuelve el Expediente Académico (o Legajo Académico) del mismo, entre sus datos se encuentra su información personal, Colegio y Plan de Estudio que cursa, estado del estudiante, listado de matrículas anuales, y datos como cuando ingreso al colegio, cuando egreso, etc."
       operationId: "studentsIdGet"
