@@ -1101,7 +1101,7 @@ CREATE OR REPLACE FUNCTION yacare.f_student_by_person_id(person_id character var
 	WHERE 	student.person_id = $1
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
--- SELECT * FROM yacare.f_student_by_id('ff80818144e5b96d0144e5b9f28e00a0');
+-- SELECT * FROM yacare.f_student_by_person_id('ff80818144e5b96d0144e5b9f28e00a0');
 
 -- =============================================================================================================================
 
