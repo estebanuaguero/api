@@ -1,14 +1,22 @@
 ﻿-- =============================================================================================================================
 
+-- TIPO VARCHAR
+
 DROP FUNCTION IF EXISTS yacare.ja(att_name VARCHAR, att_val VARCHAR, is_start BOOLEAN) CASCADE;
 
 CREATE OR REPLACE FUNCTION yacare.ja(att_name VARCHAR, att_val VARCHAR, is_start BOOLEAN) RETURNS VARCHAR AS $$
 BEGIN
+	IF att_val IS NOT NULL THEN
+		att_val = REPLACE(att_val, '"', '');
+	END IF;
+		
 	RETURN yacare.ja(att_name, att_val::VARCHAR, true, is_start);
 END;
 $$  LANGUAGE plpgsql;
 
 -- =============================================================================================================================
+
+-- TIPO BOOLEAN
 
 DROP FUNCTION IF EXISTS yacare.ja(att_name VARCHAR, att_val BOOLEAN, is_start BOOLEAN) CASCADE;
 
@@ -20,6 +28,8 @@ $$  LANGUAGE plpgsql;
 
 -- =============================================================================================================================
 
+-- TIPO INTEGER
+
 DROP FUNCTION IF EXISTS yacare.ja(att_name VARCHAR, att_val INTEGER, is_start BOOLEAN) CASCADE;
 
 CREATE OR REPLACE FUNCTION yacare.ja(att_name VARCHAR, att_val INTEGER, is_start BOOLEAN) RETURNS VARCHAR AS $$
@@ -29,6 +39,8 @@ END;
 $$  LANGUAGE plpgsql;
 
 -- =============================================================================================================================
+
+-- TIPO DOUBLE
 
 DROP FUNCTION IF EXISTS yacare.ja(att_name VARCHAR, att_val DOUBLE PRECISION, is_start BOOLEAN) CASCADE;
 
@@ -40,6 +52,8 @@ $$  LANGUAGE plpgsql;
 
 -- =============================================================================================================================
 
+-- TIPO DATE
+
 DROP FUNCTION IF EXISTS yacare.ja(att_name VARCHAR, att_val DATE, is_start BOOLEAN) CASCADE;
 
 CREATE OR REPLACE FUNCTION yacare.ja(att_name VARCHAR, att_val DATE, is_start BOOLEAN) RETURNS VARCHAR AS $$
@@ -50,6 +64,8 @@ $$  LANGUAGE plpgsql;
 
 -- =============================================================================================================================
 
+-- TIPO TIMESTAMP
+
 DROP FUNCTION IF EXISTS yacare.ja(att_name VARCHAR, att_val TIMESTAMP, is_start BOOLEAN) CASCADE;
 
 CREATE OR REPLACE FUNCTION yacare.ja(att_name VARCHAR, att_val TIMESTAMP, is_start BOOLEAN) RETURNS VARCHAR AS $$
@@ -59,6 +75,8 @@ END;
 $$  LANGUAGE plpgsql;
 
 -- =============================================================================================================================
+
+-- TIPO TIME
 
 DROP FUNCTION IF EXISTS yacare.ja(att_name VARCHAR, att_val TIME, is_start BOOLEAN) CASCADE;
 
@@ -74,6 +92,10 @@ DROP FUNCTION IF EXISTS yacare.ja(att_name VARCHAR, att_val VARCHAR) CASCADE;
 
 CREATE OR REPLACE FUNCTION yacare.ja(att_name VARCHAR, att_val VARCHAR) RETURNS VARCHAR AS $$
 BEGIN
+	IF att_val IS NOT NULL THEN
+		att_val = REPLACE(att_val, '"', '');
+	END IF;
+	
 	RETURN yacare.ja(att_name, att_val::VARCHAR, true, false);
 END;
 $$  LANGUAGE plpgsql;
@@ -144,9 +166,25 @@ DROP FUNCTION IF EXISTS yacare.ja(att_name VARCHAR, att_val VARCHAR, is_string B
 
 CREATE OR REPLACE FUNCTION yacare.ja(att_name VARCHAR, att_val VARCHAR, is_string BOOLEAN, is_start BOOLEAN) RETURNS VARCHAR AS $$
 BEGIN
+	RETURN yacare.ja(att_name , att_val , is_string , is_start, true );
+END;
+$$  LANGUAGE plpgsql;
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.ja(att_name VARCHAR, att_val VARCHAR, is_string BOOLEAN, is_start BOOLEAN, replace_double_quote BOOLEAN) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.ja(att_name VARCHAR, att_val VARCHAR, is_string BOOLEAN, is_start BOOLEAN, replace_double_quote BOOLEAN) RETURNS VARCHAR AS $$
+BEGIN
 
 		--att_val = REPLACE(REPLACE(att_val, '"', ''), '
 --', '\\n');
+
+	--IF replace_double_quote = true THEN
+	--	att_val = REPLACE(att_val, '"', '');
+	--END IF;		
+
+	--att_val = REPLACE(att_val, '"', '');
 
 	IF att_val IS NULL AND is_start = true THEN
 	        RETURN null;
@@ -385,7 +423,7 @@ SELECT 	c.iso_alfa2 AS country_iso_alfa2,
 	(
 	'{'
 	------------------------------------------------------------------------------------------------		
-		|| yacare.ja('country', c.json, false, true)
+		|| yacare.ja('country', c.json, false, true, false)
 		|| ', "adminAreaLevel1":{'
 			|| yacare.ja('isoCode', s.code, true)
 			|| yacare.ja('name', s.name)			
@@ -456,7 +494,7 @@ CREATE OR REPLACE VIEW yacare.v_address AS
 				|| yacare.ja('id', t.id, true)
 				|| yacare.ja('erased', (NOT t.state_enable)::BOOLEAN)
 
-				|| yacare.ja('country', c.json, false, false)
+				|| yacare.ja('country', c.json, false, false, false)
 				|| ', "adminAreaLevel1":{'
 					|| yacare.ja('isoCode', s.code, true)
 					|| yacare.ja('name', s.name)			
@@ -619,7 +657,28 @@ CREATE OR REPLACE VIEW yacare.v_blood_group_json AS
 		)::VARCHAR AS json
 	FROM	yacare.v_blood_group t;	
 
--- SELECT * FROM yacare.v_blood_group_json;	
+-- SELECT * FROM yacare.v_blood_group_json;
+
+-- =============================================================================================================================
+
+DROP VIEW IF EXISTS yacare.v_phone_type_json CASCADE; 
+
+CREATE OR REPLACE VIEW yacare.v_phone_type_json AS
+
+	SELECT 	*,
+		(
+		'{'
+			|| yacare.ja('id', TRIM(t.id), true)
+			|| yacare.ja('erased', (NOT t.state_enable)::BOOLEAN)
+			|| yacare.ja('code', TRIM(t.code))
+			|| yacare.ja('name', TRIM(t.name))			
+			|| yacare.ja('description', TRIM(t.comment))
+			
+		|| '}'
+		)::VARCHAR AS json
+	FROM	yacare.phone_type t;	
+
+-- SELECT * FROM yacare.v_phone_type_json;	
 
 -- =============================================================================================================================
 
@@ -679,6 +738,260 @@ CREATE OR REPLACE VIEW yacare.v_phone AS
 	WHERE address_list.physical_person_id = '2c9090b544db0f6f0144e5dc909d0882' 
 	OFFSET 1
 */		
+-- =============================================================================================================================
+
+
+DROP FUNCTION IF EXISTS yacare.f_main_address_person_by_person_id(person_id character varying) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_main_address_person_by_person_id(person_id character varying) RETURNS SETOF character varying AS $BODY$
+
+	SELECT 	
+		(
+			'{'
+			------------------------------------------------------------------------------------------------		
+				|| yacare.ja('id', t.id, true)
+				|| yacare.ja('erased', (NOT t.state_enable)::BOOLEAN)
+
+				|| yacare.ja('country', c.json, false, false, false)
+				|| ', "adminAreaLevel1":{'
+					|| yacare.ja('isoCode', s.code, true)
+					|| yacare.ja('name', s.name)			
+				|| '}'		
+				|| ', "adminAreaLevel2":{'				
+				|| '}'		
+				|| yacare.ja('locality', l.name)
+				|| yacare.ja('zipCode', t.postal_code)
+				|| yacare.ja('neightbourhood', t.district_comment)
+				|| yacare.ja('street', t.street_comment)
+				|| yacare.ja('streetNumber', t."number")
+				|| yacare.ja('floor', t.floor)
+				|| yacare.ja('room', t.flat)
+				|| yacare.ja('building', t.building)
+				|| yacare.ja('comment', t.comment)
+				
+			------------------------------------------------------------------------------------------------
+			|| '}'
+		)::VARCHAR AS json		
+	FROM	yacare.physical_person_address_list address_list							
+	JOIN 	yacare.address t
+		ON address_list.address_id = t.id	
+	JOIN	yacare.city l
+		ON t.city_id = l.id
+		JOIN	yacare.department_state_country d
+			ON l.department_state_country_id = d.id
+			JOIN	yacare.state_country s
+				ON d.state_country_id = s.id
+				JOIN	yacare.v_country c
+					ON s.country_id = c.id
+	WHERE 	address_list.physical_person_id = $1	
+	ORDER BY t.id	
+	LIMIT 1				
+
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+
+-- SELECT * FROM yacare.f_main_address_person_by_person_id('ff80818144e5b96d0144e5b9f28e00a0');
+-- SELECT * FROM yacare.f_main_address_person_by_person_id('2c9090b544db0f6f0144e5dc8b130778');
+
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_alternative_addresses_person_by_person_id(person_id character varying) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_alternative_addresses_person_by_person_id(person_id character varying) RETURNS SETOF character varying AS $BODY$
+
+
+SELECT 	COALESCE('[ ' || string_agg(t.json,', ' ) || ']', 'null')	
+FROM	(
+
+	SELECT 	
+		(
+			'{'
+			------------------------------------------------------------------------------------------------		
+				|| yacare.ja('id', t.id, true)
+				|| yacare.ja('erased', (NOT t.state_enable)::BOOLEAN)
+
+				|| yacare.ja('country', c.json, false, false, false)
+				|| ', "adminAreaLevel1":{'
+					|| yacare.ja('isoCode', s.code, true)
+					|| yacare.ja('name', s.name)			
+				|| '}'		
+				|| ', "adminAreaLevel2":{'				
+				|| '}'		
+				|| yacare.ja('locality', l.name)
+				|| yacare.ja('zipCode', t.postal_code)
+				|| yacare.ja('neightbourhood', t.district_comment)
+				|| yacare.ja('street', t.street_comment)
+				|| yacare.ja('streetNumber', t."number")
+				|| yacare.ja('floor', t.floor)
+				|| yacare.ja('room', t.flat)
+				|| yacare.ja('building', t.building)
+				|| yacare.ja('comment', t.comment)
+				
+			------------------------------------------------------------------------------------------------
+			|| '}'
+		)::VARCHAR AS json		
+	FROM	yacare.physical_person_address_list address_list							
+	JOIN 	yacare.address t
+		ON address_list.address_id = t.id	
+	JOIN	yacare.city l
+		ON t.city_id = l.id
+		JOIN	yacare.department_state_country d
+			ON l.department_state_country_id = d.id
+			JOIN	yacare.state_country s
+				ON d.state_country_id = s.id
+				JOIN	yacare.v_country c
+					ON s.country_id = c.id
+	WHERE 	address_list.physical_person_id = $1	
+	ORDER BY t.id
+	OFFSET 1
+	--LIMIT 2
+) AS t							
+
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+
+-- SELECT * FROM yacare.f_alternative_addresses_person_by_person_id('ff80818144e5b96d0144e5b9f28e00a0');
+-- SELECT * FROM yacare.f_alternative_addresses_person_by_person_id('2c9090b544db0f6f0144e5dc8b130778');
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_main_email_person_by_person_id(person_id character varying) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_main_email_person_by_person_id(person_id character varying) RETURNS SETOF character varying AS $BODY$
+
+	SELECT 	
+		(
+			'{'
+				|| yacare.ja('id', TRIM(t.id), true)
+				|| yacare.ja('erased', (NOT t.state_enable)::BOOLEAN)			
+				|| yacare.ja('email', TRIM(t.name))			
+				|| yacare.ja('comment', TRIM(t.comment))			
+			|| '}'
+		)::VARCHAR AS json		
+	FROM	yacare.physical_person_email_list mail_list							
+	JOIN 	yacare.email t
+		ON mail_list.email_id = t.id	
+	WHERE mail_list.physical_person_id = $1		
+	ORDER BY t.id		
+	LIMIT 1			
+
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+
+--SELECT * FROM yacare.f_main_email_person_by_person_id('ff80818144e5b96d0144e5b9f28e00a0');
+-- SELECT * FROM yacare.f_main_email_person_by_person_id('2c9090b544db0f6f0144e5dc8b130778');
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_alternative_emails_person_by_person_id(person_id character varying) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_alternative_emails_person_by_person_id(person_id character varying) RETURNS SETOF character varying AS $BODY$
+
+SELECT 	COALESCE('[ ' || string_agg(t.json,', ' ) || ']', 'null')	
+FROM	(
+
+	SELECT 	
+		(
+			'{'
+				|| yacare.ja('id', TRIM(t.id), true)
+				|| yacare.ja('erased', (NOT t.state_enable)::BOOLEAN)			
+				|| yacare.ja('email', TRIM(t.name))			
+				|| yacare.ja('comment', TRIM(t.comment))			
+			|| '}'
+		)::VARCHAR AS json		
+	FROM	yacare.physical_person_email_list mail_list							
+	JOIN 	yacare.email t
+		ON mail_list.email_id = t.id	
+	WHERE mail_list.physical_person_id = $1		
+	ORDER BY t.id
+	OFFSET 1			
+) AS t	
+
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+
+-- SELECT * FROM yacare.f_alternative_emails_person_by_person_id('ff80818144e5b96d0144e5b9f28e00a0');
+-- SELECT * FROM yacare.f_alternative_emails_person_by_person_id('2c9090b544db0f6f0144e5dc8b130778');
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_main_phone_person_by_person_id(person_id character varying) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_main_phone_person_by_person_id(person_id character varying) RETURNS SETOF character varying AS $BODY$
+	
+	SELECT 	
+		(
+			'{'
+				|| yacare.ja('id', TRIM(t.id), true)
+				|| yacare.ja('erased', (NOT t.state_enable)::BOOLEAN)			
+				|| yacare.ja('number', TRIM(t.name))			
+				|| yacare.ja('comment', TRIM(t.comment))	
+				|| yacare.ja('phoneType', pt.json, false, false, false)	
+			|| '}'
+		)::VARCHAR AS json		
+	FROM	yacare.physical_person_phone_list l							
+	JOIN 	yacare.phone t
+		ON l.phone_id = t.id	
+	LEFT JOIN yacare.v_phone_type_json pt
+		ON t.phone_type_id = pt.id	
+	WHERE l.physical_person_id = $1		
+	ORDER BY t.id		
+	LIMIT 1			
+
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+
+-- SELECT * FROM yacare.f_main_phone_person_by_person_id('ff80818144e5b96d0144e5b9f28e00a0');
+-- SELECT * FROM yacare.f_main_phone_person_by_person_id('2c9090b544db0f6f0144e5dc8b130778');
+
+/*
+
+select 	distinct p.id 
+from 	yacare.student s
+join	yacare.physical_person p
+	on s.physical_person_id = p.id
+where	(select count(l.*) from yacare.physical_person_phone_list l where l.physical_person_id = p.id) > 6
+
+*/
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_alternative_phones_person_by_person_id(person_id character varying) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_alternative_phones_person_by_person_id(person_id character varying) RETURNS SETOF character varying AS $BODY$
+
+SELECT 	COALESCE('[ ' || string_agg(t.json,', ' ) || ']', 'null')	
+FROM	(
+
+	SELECT 	
+		(
+			'{'
+				|| yacare.ja('id', TRIM(t.id), true)
+				|| yacare.ja('erased', (NOT t.state_enable)::BOOLEAN)			
+				|| yacare.ja('number', TRIM(t.name))			
+				|| yacare.ja('comment', TRIM(t.comment))	
+				|| yacare.ja('phoneType', pt.json, false, false, false)			
+			|| '}'
+		)::VARCHAR AS json		
+	FROM	yacare.physical_person_phone_list l	
+	JOIN 	yacare.phone t
+		ON l.phone_id = t.id	
+	LEFT JOIN yacare.v_phone_type_json pt
+		ON t.phone_type_id = pt.id	
+	WHERE 	l.physical_person_id = $1		
+	ORDER BY t.id
+	OFFSET 1			
+) AS t	
+
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+
+-- SELECT * FROM yacare.f_alternative_phones_person_by_person_id('ff80818144e5b96d0144e5b9f28e00a0');
+-- SELECT * FROM yacare.f_alternative_phones_person_by_person_id('2c9090b544db0f6f0144e5dc8b130778');
+-- SELECT * FROM yacare.f_alternative_phones_person_by_person_id('6f3c778a-a331-11e5-8e50-00f48900a927');
+
+
 
 -- =============================================================================================================================
 
@@ -697,30 +1010,31 @@ SELECT	person.id,
 		|| yacare.ja('erased', person.erased)
 		|| yacare.ja('givenNames', person.names, false, false)
 		|| yacare.ja('surnames', person.last_names, false, false)
-		|| yacare.ja('gender', gender.json, false, false)
+		|| yacare.ja('gender', gender.json, false, false, false)
 		|| ', "birth":{'
-			|| yacare.ja('dateOfBirth', birth_date, true)
+			|| yacare.ja('id', person.id, true)
+			|| yacare.ja('dateOfBirth', birth_date) 			
 			|| yacare.ja('age', date_part('year',age(birth_date::TIMESTAMP))::INTEGER)
 			|| yacare.ja('fullAge', REPLACE(REPLACE(REPLACE(REPLACE(age(birth_date::TIMESTAMP)::VARCHAR, 'years', 'años'), 'mons', 'meses'), 'days', 'días'), 'mon', 'mes')::VARCHAR)
 			--|| yacare.ja('fullAge', REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(age('2015-08-17'::TIMESTAMP)::VARCHAR, 'years', 'años'), 'mons', 'meses'), 'days', 'días'), 'mon', 'mes'), 'day', 'día'), 'year', 'año')::VARCHAR)
-			|| yacare.ja('placeOfBirth', COALESCE(geo_location.json, '{}')::VARCHAR, false, false)
+			|| yacare.ja('placeOfBirth', COALESCE(geo_location.json, '{}')::VARCHAR, false, false, false)
 			--|| ', "geoLocation":' || COALESCE(geo_location.json, '{}')			
 		|| '}'
 		|| ', "nationalities":{'
 			|| COALESCE('"mainNationality":{'
-				|| yacare.ja('country', nationality_country.json, false, true)
+				|| yacare.ja('country', nationality_country.json, false, true, false)
 			|| '}', '')			
 		|| '}'
 		|| ', "identityDocuments":{'
 			|| '"mainIdentity":{'
 				|| yacare.ja('identityNumber', COALESCE(person.identification_number, ''), true)
-				|| yacare.ja('identityType', COALESCE(identity_type.json, ''), false, false)
+				|| yacare.ja('identityType', identity_type.json, false, false, false)
 			|| '}'
 						
 			|| COALESCE(', "identities":[' 
 				|| '{'
 					|| yacare.ja('identityNumber', person.cuil_cuit, true)
-					|| yacare.ja('identityType', identity_type_cuil.json, false, false)
+					|| yacare.ja('identityType', identity_type_cuil.json, false, false, false)
 				|| '}'		
 			|| ']', '')			
 		|| '}'
@@ -729,6 +1043,7 @@ SELECT	person.id,
 				|| yacare.ja('mainAddress', 					
 					COALESCE(
 					(
+						/*
 						SELECT 	address.json
 						FROM	yacare.physical_person_address_list address_list							
 						LEFT JOIN yacare.v_address address
@@ -736,10 +1051,13 @@ SELECT	person.id,
 						WHERE person.id = address_list.physical_person_id		
 						ORDER BY address.id		
 						LIMIT 1
+						*/
+						null
 					)::VARCHAR, 'null')::VARCHAR 
 				, false, true)	
 				|| yacare.ja('alternativeAddresses', 
 					(
+						/*
 						SELECT 	COALESCE('[ ' || string_agg(address.json,', ' ORDER BY address.id) || ']', 'null')
 						FROM	yacare.physical_person_address_list address_list							
 						LEFT JOIN yacare.v_address address
@@ -747,6 +1065,8 @@ SELECT	person.id,
 						WHERE address_list.physical_person_id = person.id
 						--LIMIT 1
 						--OFFSET 0
+						*/
+						null
 					)::VARCHAR
 				, false, false)				
 							
@@ -755,6 +1075,7 @@ SELECT	person.id,
 				|| yacare.ja('mainEmail', 					
 					COALESCE(
 					(
+						/*
 						SELECT 	email.json
 						FROM	yacare.physical_person_email_list mail_list							
 						LEFT JOIN yacare.v_email email
@@ -762,10 +1083,13 @@ SELECT	person.id,
 						WHERE person.id = mail_list.physical_person_id		
 						ORDER BY email.id		
 						LIMIT 1
+						*/
+						null
 					)::VARCHAR, 'null')::VARCHAR 
 				, false, true)	
 				|| yacare.ja('alternativeEmails', 
 					(
+						/*
 						SELECT 	COALESCE('[ ' || string_agg(email.json,', ' ORDER BY email.id) || ']', 'null')
 						FROM	yacare.physical_person_email_list mail_list							
 						LEFT JOIN yacare.v_email email
@@ -773,6 +1097,8 @@ SELECT	person.id,
 						WHERE person.id = mail_list.physical_person_id	
 						--LIMIT 1
 						--OFFSET 0
+						*/
+						null
 					)::VARCHAR
 				, false, false)				
 			|| '}'		
@@ -781,6 +1107,7 @@ SELECT	person.id,
 				|| yacare.ja('mainPhone', 					
 					COALESCE(
 					(
+						/*
 						SELECT 	phone.json
 						FROM	yacare.physical_person_phone_list phone_list							
 						LEFT JOIN yacare.v_phone phone
@@ -788,10 +1115,13 @@ SELECT	person.id,
 						WHERE person.id = phone_list.physical_person_id		
 						ORDER BY phone.id		
 						LIMIT 1
+						*/
+						null
 					)::VARCHAR, 'null')::VARCHAR 
 				, false, true)	
 				|| yacare.ja('alternativePhones', 
 					(
+						/*			
 						SELECT 	COALESCE('[ ' || string_agg(phone.json,', ' ORDER BY phone.id) || ']', 'null')
 						FROM	yacare.physical_person_phone_list phone_list							
 						LEFT JOIN yacare.v_phone phone
@@ -799,14 +1129,16 @@ SELECT	person.id,
 						WHERE person.id = phone_list.physical_person_id						
 						--LIMIT 1
 						--OFFSET 0
+						*/
+						null
 					)::VARCHAR
 				, false, false)				
 			|| '}'		
 			
 		|| '}'
 		|| ', "healthData":{'
-			|| yacare.ja('bloodFactor', COALESCE(blood_factor.json, 'null'), false, true)
-			|| yacare.ja('bloodGroup', COALESCE(blood_group.json, 'null'), false, false)
+			|| yacare.ja('bloodFactor', COALESCE(blood_factor.json, 'null'), false, true, false)
+			|| yacare.ja('bloodGroup', COALESCE(blood_group.json, 'null'), false, false, false)
 		|| '}'
 		
 	------------------------------------------------------------------------------------------------
@@ -843,7 +1175,7 @@ CREATE OR REPLACE FUNCTION yacare.f_person_by_id(person_id character varying) RE
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
 
-SELECT * FROM yacare.f_person_by_id('ff80818144e5b96d0144e5b9f28e00a0');
+-- SELECT * FROM yacare.f_person_by_id('ff80818144e5b96d0144e5b9f28e00a0');
 
 -- =============================================================================================================================
 
@@ -986,8 +1318,8 @@ CREATE OR REPLACE VIEW yacare.v_admission_act_enrollment AS
 		'{'
 			|| yacare.ja('id', TRIM(admission_act.id), true)
 			|| yacare.ja('erased', (NOT admission_act.state_enable)::BOOLEAN)			
-			|| yacare.ja('academicYear', year_calendar.json, false, false)	
-			|| yacare.ja('period', period.json, false, false)
+			|| yacare.ja('academicYear', year_calendar.json, false, false, false)	
+			|| yacare.ja('period', period.json, false, false, false)
 			|| ', "admissionEnrollment":{'
 				--|| yacare.ja('enrollmentDate', 'Matrícula admitida y sin confirmar', true)
 				--|| yacare.ja('admissionDate', null, true)
@@ -995,7 +1327,7 @@ CREATE OR REPLACE VIEW yacare.v_admission_act_enrollment AS
 				
 			|| '}'	
 			--|| yacare.ja('mainSchoolShift', turn.json, false, false)	
-			|| yacare.ja('state', state_value.json, false, false)	
+			|| yacare.ja('state', state_value.json, false, false, false)	
 			
 			
 		|| '}')::VARCHAR AS json
@@ -1050,17 +1382,17 @@ CREATE OR REPLACE VIEW yacare.v_student AS
 		------------------------------------------------------------------------------------------------
 			|| yacare.ja('id', student.id, true)
 			|| yacare.ja('erased', (NOT student.state_enable)::BOOLEAN)
-			|| yacare.ja('personalInformation', person.json, false, false)
+			|| yacare.ja('personalInformation', person.json, false, false, false)
 			|| ', "institution":{'	
 				|| yacare.ja('id', 'cnm.unc.edu.ar', true)
 				|| yacare.ja('erased', false::BOOLEAN)			
 				|| yacare.ja('shortName', 'CNM')						
 				|| yacare.ja('name', 'Colegio Nacional de Monserrat')
 				|| yacare.ja('webSite', 'www.cnm.unc.edu.ar')
-				|| yacare.ja('country', c.json, false, false)							
+				|| yacare.ja('country', c.json, false, false, false)							
 			|| '}'
-			|| yacare.ja('career', career.json, false, false)
-			|| yacare.ja('state', state_value.json, false, false)			
+			|| yacare.ja('career', career.json, false, false, false)
+			|| yacare.ja('state', state_value.json, false, false, false)			
 			|| ', "inscriptionInstitution":{'				
 			|| '}'
 			|| ', "admissionInstitution":{'				
@@ -1105,6 +1437,26 @@ $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
 -- =============================================================================================================================
 
+DROP FUNCTION IF EXISTS yacare.f_student(offsetArg INTEGER, limitArg INTEGER) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_student(offsetArg INTEGER, limitArg INTEGER) RETURNS SETOF character varying AS $BODY$
+
+SELECT 	COALESCE('[ ' || string_agg(t.json,', ' ) || ']', 'null')	
+FROM	(
+
+
+	SELECT 	student.json::VARCHAR 
+	FROM 	yacare.v_student AS student 
+	OFFSET 	$1
+	LIMIT	$2	
+) AS t
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_student(0, 100);
+
+-- =============================================================================================================================
+
 DROP VIEW IF EXISTS yacare.v_legal_guardian CASCADE; 
 
 CREATE OR REPLACE VIEW yacare.v_legal_guardian AS
@@ -1112,21 +1464,29 @@ CREATE OR REPLACE VIEW yacare.v_legal_guardian AS
 	SELECT	person.id,
 		('{'
 		------------------------------------------------------------------------------------------------
-			|| yacare.ja('person', person.json, false, true)			
-			|| yacare.ja('educationLevel', education_level_type.json, false, false)			
+			|| yacare.ja('person', person.json, false, true, false)			
+			|| yacare.ja('educationLevel', education_level_type.json, false, false, false)			
 			|| yacare.ja('comment', TRIM(person.comment))		
 			|| yacare.ja('summary', null::VARCHAR)
-			/*
+			
 			|| yacare.ja('students', 
 				(
-					SELECT 	COALESCE('[ ' || string_agg(enrollment.json,', ' ORDER BY enrollment.year_calendar) || ']', 'null')
-					FROM	yacare.v_admission_act_enrollment enrollment  
-					WHERE 	student.id = enrollment.student_id						
-					--LIMIT 1
-					--OFFSET 0
+				
+					SELECT 	COALESCE('[ ' || string_agg('{' || yacare.ja('id', pp_child.id, true) || '}',', ') || ']', 'null')
+					FROM 	yacare.family_relationship r
+					JOIN	yacare.physical_person_family_relationship_list l
+						ON 	l.family_relationship_id = r.id
+						JOIN 	yacare.physical_person pp_child	
+							ON l.physical_person_id = pp_child.id
+							JOIN yacare.student s
+								ON s.physical_person_id = pp_child.id
+								AND s.state_enable = true	
+					WHERE	r.legal_responsibility = true
+						AND r.physical_person_id = person.id
+				 
 				)::VARCHAR
 			, false, false)			
-			*/
+			
 		------------------------------------------------------------------------------------------------
 		|| '}')::VARCHAR AS json	
 	FROM	yacare.v_person_json AS person
@@ -1135,10 +1495,13 @@ CREATE OR REPLACE VIEW yacare.v_legal_guardian AS
 	WHERE	(
 			SELECT 	COUNT(*) 
 			FROM 	yacare.family_relationship fr
-				--JOIN	yacare.physical_person_family_relationship_list ppfrl
-				--	ON 	ppfrl.family_relationship_id = fr.id
-				--	JOIN 	yacare.physical_person pp_child	
-				--		ON ppfrl.physical_person_id = pp_child.id
+				JOIN	yacare.physical_person_family_relationship_list ppfrl
+					ON 	ppfrl.family_relationship_id = fr.id
+					JOIN 	yacare.physical_person pp_child	
+						ON ppfrl.physical_person_id = pp_child.id
+						JOIN yacare.student s
+							ON s.physical_person_id = pp_child.id
+							AND s.state_enable = true
 			WHERE	fr.physical_person_id = person.id
 				AND 	fr.legal_responsibility = true
 		) > 0	
@@ -1163,7 +1526,27 @@ CREATE OR REPLACE FUNCTION yacare.f_legal_guardian_by_person_id(person_id charac
 	WHERE 	legal_guardian.id = $1
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
-SELECT * FROM yacare.f_legal_guardian_by_person_id('31438562-21c3-47fa-a211-6c97262894b5');
+-- SELECT * FROM yacare.f_legal_guardian_by_person_id('31438562-21c3-47fa-a211-6c97262894b5');
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_legal_guardian(offsetArg INTEGER, limitArg INTEGER) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_legal_guardian(offsetArg INTEGER, limitArg INTEGER) RETURNS SETOF character varying AS $BODY$
+
+SELECT 	COALESCE('[ ' || string_agg(t.json,', ' ) || ']', 'null')	
+FROM	(
+
+
+	SELECT 	legal_guardian.json::VARCHAR 
+	FROM 	yacare.v_legal_guardian AS legal_guardian
+	OFFSET 	$1
+	LIMIT	$2	
+) AS t
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+ SELECT * FROM yacare.f_legal_guardian(0, 100);
 
 -- =============================================================================================================================
 -- =============================================================================================================================
