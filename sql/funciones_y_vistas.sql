@@ -569,7 +569,7 @@ CREATE OR REPLACE VIEW yacare.v_identity_type AS
 		)::VARCHAR AS json
 	FROM	yacare.v_identification_type_person t;
 
-	-- =============================================================================================================================
+-- =============================================================================================================================
 
 DROP FUNCTION IF EXISTS yacare.f_identity_type(offsetArg INTEGER, limitArg INTEGER) CASCADE;
 
@@ -602,6 +602,8 @@ CREATE OR REPLACE VIEW yacare.v_blood_factor AS
 		TRIM(t.comment)::VARCHAR AS description
 	FROM	yacare.blood_factor t;
 
+
+
 -- =============================================================================================================================
 
 DROP VIEW IF EXISTS yacare.v_blood_factor_json CASCADE; 
@@ -622,6 +624,21 @@ CREATE OR REPLACE VIEW yacare.v_blood_factor_json AS
 	FROM	yacare.v_blood_factor t;	
 
 -- SELECT * FROM yacare.v_blood_factor_json;
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_blood_factor(offsetArg INTEGER, limitArg INTEGER) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_blood_factor(offsetArg INTEGER, limitArg INTEGER) RETURNS SETOF character varying AS $BODY$
+
+	SELECT 	COALESCE('[ ' || string_agg(blood_factor.json,', ' ORDER BY blood_factor.name) || ']', 'null')	
+	FROM 	yacare.v_blood_factor_json AS blood_factor
+	OFFSET $1 
+	LIMIT $2	
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_blood_factor(0, 100);	
 
 -- =============================================================================================================================
 
@@ -661,6 +678,21 @@ CREATE OR REPLACE VIEW yacare.v_blood_group_json AS
 
 -- =============================================================================================================================
 
+DROP FUNCTION IF EXISTS yacare.f_blood_group(offsetArg INTEGER, limitArg INTEGER) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_blood_group(offsetArg INTEGER, limitArg INTEGER) RETURNS SETOF character varying AS $BODY$
+
+	SELECT 	COALESCE('[ ' || string_agg(blood_group.json,', ' ORDER BY blood_group.name) || ']', 'null')	
+	FROM 	yacare.v_blood_group_json AS blood_group
+	OFFSET $1 
+	LIMIT $2	
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_blood_group(0, 100);	
+
+-- =============================================================================================================================
+
 DROP VIEW IF EXISTS yacare.v_phone_type_json CASCADE; 
 
 CREATE OR REPLACE VIEW yacare.v_phone_type_json AS
@@ -678,7 +710,95 @@ CREATE OR REPLACE VIEW yacare.v_phone_type_json AS
 		)::VARCHAR AS json
 	FROM	yacare.phone_type t;	
 
--- SELECT * FROM yacare.v_phone_type_json;	
+-- SELECT * FROM yacare.v_phone_type_json;
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_phone_type(offsetArg INTEGER, limitArg INTEGER) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_phone_type(offsetArg INTEGER, limitArg INTEGER) RETURNS SETOF character varying AS $BODY$
+
+	SELECT 	COALESCE('[ ' || string_agg(phone_type.json,', ' ORDER BY phone_type.name) || ']', 'null')	
+	FROM 	yacare.v_phone_type_json AS phone_type
+	OFFSET $1 
+	LIMIT $2	
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_phone_type(0, 100);
+	
+
+-- =============================================================================================================================
+
+DROP VIEW IF EXISTS yacare.v_family_relationship_type_json CASCADE; 
+
+CREATE OR REPLACE VIEW yacare.v_family_relationship_type_json AS
+
+	SELECT 	*,
+		(
+		'{'
+			|| yacare.ja('id', TRIM(t.id), true)
+			|| yacare.ja('erased', (NOT t.state_enable)::BOOLEAN)
+			|| yacare.ja('code', TRIM(t.code))
+			|| yacare.ja('name', TRIM(t.name))			
+			|| yacare.ja('description', TRIM(t.comment))
+			
+		|| '}'
+		)::VARCHAR AS json
+	FROM	yacare.family_relationship_type t;	
+
+-- SELECT * FROM yacare.v_family_relationship_type_json;
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_family_relationship_type(offsetArg INTEGER, limitArg INTEGER) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_family_relationship_type(offsetArg INTEGER, limitArg INTEGER) RETURNS SETOF character varying AS $BODY$
+
+	SELECT 	COALESCE('[ ' || string_agg(family_relationship_type.json,', ' ORDER BY family_relationship_type.code) || ']', 'null')	
+	FROM 	yacare.v_family_relationship_type_json AS family_relationship_type
+	OFFSET $1 
+	LIMIT $2	
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_family_relationship_type(0, 100);
+
+-- =============================================================================================================================
+
+DROP VIEW IF EXISTS yacare.v_education_level_type_json CASCADE; 
+
+CREATE OR REPLACE VIEW yacare.v_education_level_type_json AS
+
+	SELECT 	*,
+		(
+		'{'
+			|| yacare.ja('id', TRIM(t.id), true)
+			|| yacare.ja('erased', (NOT t.state_enable)::BOOLEAN)
+			|| yacare.ja('code', TRIM(t.code))
+			|| yacare.ja('name', TRIM(t.name))			
+			|| yacare.ja('description', TRIM(t.comment))
+			
+		|| '}'
+		)::VARCHAR AS json
+	FROM	yacare.education_level_type t;	
+
+-- SELECT * FROM yacare.v_education_level_type_json;	
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_education_level_type(offsetArg INTEGER, limitArg INTEGER) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_education_level_type(offsetArg INTEGER, limitArg INTEGER) RETURNS SETOF character varying AS $BODY$
+
+	SELECT 	COALESCE('[ ' || string_agg(education_level_type.json,', ' ORDER BY education_level_type.code) || ']', 'null')	
+	FROM 	yacare.v_education_level_type_json AS education_level_type
+	OFFSET $1 
+	LIMIT $2	
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_education_level_type(0, 100);
 
 -- =============================================================================================================================
 
@@ -1454,6 +1574,49 @@ FROM	(
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
 -- SELECT * FROM yacare.f_student(0, 100);
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_student_responsible_family(person_id VARCHAR) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_student_responsible_family(person_id VARCHAR) RETURNS SETOF character varying AS $BODY$
+
+SELECT 	COALESCE('[ ' || string_agg(t.json,', ' ) || ']', 'null')	
+FROM	(
+
+
+			SELECT 	(
+					'{'
+						|| '"person":{' 
+							|| yacare.ja('id', tutor.id, true)		
+						|| '}'	
+						|| yacare.ja('familyRelationshipType', rt.json, false, false, false)			
+						|| yacare.ja('educationLevel', el.json, false, false, false)			
+					|| '}'
+				)::VARCHAR AS json	
+					
+				
+			FROM 	yacare.family_relationship r
+			JOIN 	yacare.physical_person tutor
+					ON r.physical_person_id = tutor.id
+			LEFT JOIN yacare.v_education_level_type_json el
+					ON tutor.education_level_type_id = el.id
+			LEFT JOIN yacare.v_family_relationship_type_json rt
+					ON r.family_relationship_type_id = rt.id		
+			JOIN	yacare.physical_person_family_relationship_list l
+				ON 	l.family_relationship_id = r.id
+				JOIN 	yacare.physical_person pp_child	
+					ON l.physical_person_id = pp_child.id
+					JOIN yacare.student s
+						ON s.physical_person_id = pp_child.id						
+			WHERE	r.legal_responsibility = true
+				AND pp_child.id = $1	
+			ORDER BY rt.code	
+) AS t
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_student_responsible_family('ff80818144e5b96d0144e5ba611304cc');
 
 -- =============================================================================================================================
 
