@@ -1523,9 +1523,8 @@ CREATE OR REPLACE VIEW yacare.v_student AS
 				(
 					SELECT 	COALESCE('[ ' || string_agg(enrollment.json,', ' ORDER BY enrollment.year_calendar) || ']', 'null')
 					FROM	yacare.v_admission_act_enrollment enrollment  
-					WHERE 	student.id = enrollment.student_id						
-					--LIMIT 1
-					--OFFSET 0
+					WHERE 	student.id = enrollment.student_id											
+					--null
 				)::VARCHAR
 			, false, false)			
 		------------------------------------------------------------------------------------------------
@@ -1634,7 +1633,7 @@ CREATE OR REPLACE VIEW yacare.v_legal_guardian AS
 			
 			|| yacare.ja('students', 
 				(
-				
+				/*
 					SELECT 	COALESCE('[ ' || string_agg('{' || yacare.ja('id', pp_child.id, true) || '}',', ') || ']', 'null')
 					FROM 	yacare.family_relationship r
 					JOIN	yacare.physical_person_family_relationship_list l
@@ -1646,7 +1645,8 @@ CREATE OR REPLACE VIEW yacare.v_legal_guardian AS
 								AND s.state_enable = true	
 					WHERE	r.legal_responsibility = true
 						AND r.physical_person_id = person.id
-				 
+				 */
+				 null
 				)::VARCHAR
 			, false, false)			
 			
@@ -1709,7 +1709,49 @@ FROM	(
 	
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
- SELECT * FROM yacare.f_legal_guardian(0, 100);
+-- SELECT * FROM yacare.f_legal_guardian(0, 100);
+
+ -- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_legal_guardian_students(person_id VARCHAR) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_legal_guardian_students(person_id VARCHAR) RETURNS SETOF character varying AS $BODY$
+
+SELECT 	COALESCE('[ ' || string_agg(t.json,', ' ) || ']', 'null')	
+FROM	(
+
+
+			SELECT 	(
+					'{'
+						|| '"person":{' 
+							|| yacare.ja('id', pp_child.id, true)		
+						|| '}'	
+						|| yacare.ja('familyRelationshipType', rt.json, false, false, false)			
+							
+					|| '}'
+				)::VARCHAR AS json	
+
+			FROM 	yacare.family_relationship fr
+				LEFT JOIN yacare.v_family_relationship_type_json rt
+					ON fr.family_relationship_type_id = rt.id
+				JOIN	yacare.physical_person_family_relationship_list ppfrl
+					ON 	ppfrl.family_relationship_id = fr.id
+					JOIN 	yacare.physical_person pp_child	
+						ON ppfrl.physical_person_id = pp_child.id
+						JOIN yacare.student s
+							ON s.physical_person_id = pp_child.id
+							AND s.state_enable = true
+			WHERE	fr.physical_person_id = $1 -- 'd898013a-256b-4ca0-a750-726ec667dfa3' --person.id
+				AND 	fr.legal_responsibility = true				
+				
+) AS t
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+ SELECT * FROM yacare.f_legal_guardian_students('d898013a-256b-4ca0-a750-726ec667dfa3');
+
+-- =============================================================================================================================
+
 
 -- =============================================================================================================================
 -- =============================================================================================================================
