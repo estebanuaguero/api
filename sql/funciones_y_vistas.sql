@@ -246,6 +246,9 @@ CREATE TABLE yacare.gender
 DELETE FROM yacare.gender;
 
 INSERT INTO yacare.gender (id, erased, code, name, description) VALUES ('e3521105-9eba-45f4-b51f-63108158cfbc', false, 'M', 'Masculino', 'Sexo masculino');
+INSERT INTO yacare.gender (id, erased, code, name, description) VALUES ('e3521105-9eba-45f4-b51f-63108158cfbf', false, 'F', 'Femenino', 'Sexo femenino');
+
+-- SELECT * FROM yacare.gender
 
 -- =============================================================================================================================
 
@@ -310,6 +313,21 @@ CREATE OR REPLACE VIEW yacare.v_gender AS
 		)::VARCHAR AS json		
 		--(SELECT * FROM yacare.f_gender_by_id(id))::VARCHAR AS json
 	FROM 	yacare.gender;
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_gender(offsetArg INTEGER, limitArg INTEGER) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_gender(offsetArg INTEGER, limitArg INTEGER) RETURNS SETOF character varying AS $BODY$
+
+	SELECT 	COALESCE('[ ' || string_agg(gender.json,', ' ORDER BY gender.id) || ']', 'null')	
+	FROM 	yacare.v_gender AS gender
+	OFFSET $1 
+	LIMIT $2	
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_gender(0, 100);	
 
 
 -- =============================================================================================================================
@@ -1519,7 +1537,7 @@ CREATE OR REPLACE VIEW yacare.v_student AS
 			|| '}'
 			|| ', "graduationInstitution":{'				
 			|| '}'	
-			|| yacare.ja('annualEnrollmentList', 
+			|| yacare.ja('annualEnrollments', 
 				(
 					SELECT 	COALESCE('[ ' || string_agg(enrollment.json,', ' ORDER BY enrollment.year_calendar) || ']', 'null')
 					FROM	yacare.v_admission_act_enrollment enrollment  
@@ -1573,6 +1591,94 @@ FROM	(
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
 -- SELECT * FROM yacare.f_student(0, 100);
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_annual_enrollment(offsetArg INTEGER, limitArg INTEGER) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_annual_enrollment(offsetArg INTEGER, limitArg INTEGER) RETURNS SETOF character varying AS $BODY$
+
+SELECT 	COALESCE('[ ' || string_agg(t.json,', ' ) || ']', 'null')	
+FROM	(
+
+	SELECT 	enrollment.json::VARCHAR 
+	FROM	yacare.v_admission_act_enrollment enrollment   	
+	ORDER BY enrollment.year_calendar
+	OFFSET 	$1
+	LIMIT	$2	
+) AS t
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_annual_enrollment(0, 100);
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_annual_enrollment(offset_arg INTEGER, limit_arg INTEGER, student_id_arg VARCHAR) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_annual_enrollment(offset_arg INTEGER, limit_arg INTEGER, student_id_arg VARCHAR) RETURNS SETOF character varying AS $BODY$
+
+SELECT 	COALESCE('[ ' || string_agg(t.json,', ' ) || ']', 'null')	
+FROM	(
+
+	SELECT 	enrollment.json::VARCHAR 
+	FROM	yacare.v_admission_act_enrollment enrollment   
+	WHERE 	enrollment.student_id = $3 --WHERE ($3 IS NULL OR enrollment.student_id = $3) 
+	ORDER BY enrollment.year_calendar
+	OFFSET 	$1
+	LIMIT	$2	
+) AS t
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_annual_enrollment(0, 100, null);
+-- SELECT * FROM yacare.f_annual_enrollment(0, 100, 'ff80818144e5b96d0144e5ba611304cb');
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_annual_enrollment(offset_arg INTEGER, limit_arg INTEGER, student_id_arg VARCHAR, last_admission_arg BOOLEAN) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_annual_enrollment(offset_arg INTEGER, limit_arg INTEGER, student_id_arg VARCHAR, last_admission_arg BOOLEAN) RETURNS SETOF character varying AS $BODY$
+
+SELECT 	COALESCE('[ ' || string_agg(t.json,', ' ) || ']', 'null')	
+FROM	(
+
+	SELECT 	enrollment.json::VARCHAR 
+	FROM	yacare.v_admission_act_enrollment enrollment   
+	WHERE 	enrollment.student_id = $3 AND ((enrollment_id IS NULL AND $4 = true) OR (enrollment_id IS NOT NULL AND $4 = false)) --WHERE ($3 IS NULL OR enrollment.student_id = $3) 
+	ORDER BY enrollment.year_calendar
+	OFFSET 	$1
+	LIMIT	$2	
+) AS t
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_annual_enrollment(0, 100, null, false);
+-- SELECT * FROM yacare.f_annual_enrollment(0, 100, null, true);
+-- SELECT * FROM yacare.f_annual_enrollment(0, 100, 'ff80818144e5b96d0144e5ba611304cb', true);
+-- SELECT * FROM yacare.f_annual_enrollment(0, 100, 'ff80818144e5b96d0144e5ba611304cb', false);
+
+-- =============================================================================================================================
+
+DROP FUNCTION IF EXISTS yacare.f_annual_enrollment(offset_arg INTEGER, limit_arg INTEGER, last_admission_arg BOOLEAN) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_annual_enrollment(offset_arg INTEGER, limit_arg INTEGER, last_admission_arg BOOLEAN) RETURNS SETOF character varying AS $BODY$
+
+SELECT 	COALESCE('[ ' || string_agg(t.json,', ' ) || ']', 'null')	
+FROM	(
+
+	SELECT 	enrollment.json::VARCHAR 
+	FROM	yacare.v_admission_act_enrollment enrollment   
+	WHERE	(enrollment_id IS NULL AND $3 = true) OR (enrollment_id IS NOT NULL AND $3 = false)
+	ORDER BY enrollment.year_calendar
+	OFFSET 	$1
+	LIMIT	$2	
+) AS t
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_annual_enrollment(0, 100, false);
+-- SELECT * FROM yacare.f_annual_enrollment(0, 100, true);
 
 -- =============================================================================================================================
 
