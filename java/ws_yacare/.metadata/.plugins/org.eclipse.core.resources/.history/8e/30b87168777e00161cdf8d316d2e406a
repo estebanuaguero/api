@@ -1,0 +1,7 @@
+package org.yacare.api.interfaces;
+
+public interface Api {
+	
+	public static String msg200_2 = "Un listado de factores sanguineos";
+
+}

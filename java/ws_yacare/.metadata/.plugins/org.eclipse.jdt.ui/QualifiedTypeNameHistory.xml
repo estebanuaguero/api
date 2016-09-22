@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="io.swagger.Swagger2SpringBoot"/>
+<fullyQualifiedTypeName name="org.utiljdbc.SO"/>
+<fullyQualifiedTypeName name="java.io.FileInputStream"/>
+<fullyQualifiedTypeName name="java.util.logging.LogManager"/>
+<fullyQualifiedTypeName name="org.apache.log4j.LogManager"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="org.yacare.model.Address"/>
+<fullyQualifiedTypeName name="org.yacare.model.Email"/>
+<fullyQualifiedTypeName name="org.yacare.api.interfaces.Api"/>
+<fullyQualifiedTypeName name="org.yacare.api.GendersApi"/>
+<fullyQualifiedTypeName name="java.sql.Date"/>
+<fullyQualifiedTypeName name="java.sql.Timestamp"/>
+</qualifiedTypeNameHistroy>

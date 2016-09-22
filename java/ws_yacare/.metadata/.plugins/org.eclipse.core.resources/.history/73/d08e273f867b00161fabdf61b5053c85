@@ -1,0 +1,51 @@
+package org.yacare.api.controller;
+
+import io.swagger.annotations.ApiParam;
+
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.yacare.Swagger2SpringBoot;
+import org.yacare.api.interfaces.PhoneTypesApi;
+import org.yacare.bo.PhoneTypeBo;
+import org.yacare.model.PhoneType;
+
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringCodegen", date = "2016-09-08T13:04:56.524Z")
+@Controller
+public class PhoneTypesApiController implements PhoneTypesApi {
+
+	@CrossOrigin(origins = "http://localhost:9000")
+	public ResponseEntity<PhoneType> phoneTypeIdGet(
+			@ApiParam(value = msg3, required = true) @PathVariable(msg4) String id) {
+		// do some magic!
+		return new ResponseEntity<PhoneType>(HttpStatus.OK);
+	}
+
+	@CrossOrigin(origins = "http://localhost:9000")
+	public ResponseEntity<List<PhoneType>> phoneTypeGet(
+			@ApiParam(value = msg6) @RequestParam(value = msg8, required = false) Integer offset,
+			@ApiParam(value = msg7) @RequestParam(value = msg9, required = false) Integer limit
+
+	) {
+
+		return getTypesOfPhones(offset, limit);
+	}
+
+	private ResponseEntity<List<PhoneType>> getTypesOfPhones(Integer offset,
+			Integer limit) {
+
+		PhoneTypeBo phoneTypeBo = new PhoneTypeBo();
+		phoneTypeBo.setDataSourceWrapper(Swagger2SpringBoot
+				.getDataSourceWrapper());
+
+		List<PhoneType> phoneTypes = phoneTypeBo.getTypesOfPhones(offset, limit);
+
+		return new ResponseEntity<List<PhoneType>>(phoneTypes, HttpStatus.OK);
+	}
+
+}

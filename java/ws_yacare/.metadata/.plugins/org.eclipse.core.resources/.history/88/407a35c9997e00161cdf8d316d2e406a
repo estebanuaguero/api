@@ -1,0 +1,58 @@
+package org.yacare.api.controller;
+
+import io.swagger.annotations.ApiParam;
+
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.yacare.Swagger2SpringBoot;
+import org.yacare.api.AnnualEnrollmentsApi;
+import org.yacare.bo.AnnualEnrollmentBo;
+import org.yacare.model.AnnualEnrollment;
+import org.yacare.model.BloodFactor;
+
+@Controller
+public class AnnualEnrollmentsApiController implements AnnualEnrollmentsApi {
+
+	// -------------------------------------------------------------------------------
+
+	@CrossOrigin(origins = "http://localhost:9000")
+	public ResponseEntity<List<AnnualEnrollment>> getList(
+			@ApiParam(value = endPointArg1Title_1) @RequestParam(value = endPointArg1_1, required = false) Integer offset,
+			@ApiParam(value = endPointArg2Title_1) @RequestParam(value = endPointArg2_1, required = false) Integer limit, 
+			@ApiParam(value = endPointArg3Title_1) @RequestParam(value = endPointArg3_1, required = false) Integer idStudent,
+			@ApiParam(value = endPointArg4Title_1) @RequestParam(value = endPointArg4_1, required = false) Integer lastAdmission) {
+
+		return getBloodFactors(offset, limit);
+	}
+
+	// -------------------------------------------------------------------------------
+
+	@CrossOrigin(origins = "http://localhost:9000")
+	public ResponseEntity<AnnualEnrollment> getById(
+			@ApiParam(value = endPointArg1Title_2, required = true) @PathVariable(endPointArg1_2) String id) {
+
+		return new ResponseEntity<AnnualEnrollment>(HttpStatus.OK);
+	}
+
+	// ================================================================================
+
+	private ResponseEntity<List<AnnualEnrollment>> getBloodFactors(
+			Integer offset, Integer limit) {
+
+		AnnualEnrollmentBo annualEnrollmentBo = new AnnualEnrollmentBo();
+		annualEnrollmentBo.setDataSourceWrapper(Swagger2SpringBoot
+				.getDataSourceWrapper());
+
+		List<AnnualEnrollment> annualEnrollments = annualEnrollmentBo.getAnnualEnrollments(offset, limit);
+
+		return new ResponseEntity<List<AnnualEnrollment>>(annualEnrollments,
+				HttpStatus.OK);
+	}
+
+}

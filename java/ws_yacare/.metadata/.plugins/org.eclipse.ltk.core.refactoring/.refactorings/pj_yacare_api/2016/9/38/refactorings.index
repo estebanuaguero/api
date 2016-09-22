@@ -1,0 +1,47 @@
+1473690492600	Rename package 'io.swagger.model'
+1473691385822	Rename package 'io.swagger.api'
+1473691571923	Move compilation units
+1473691676610	Delete elements
+1473691683725	Delete element
+1473692702372	Rename package 'io.swagger.configuration'
+1473692765471	Rename package 'io.swagger'
+1473700940101	Move compilation units
+1473704689036	Delete element
+1473965645766	Copy compilation unit
+1473967044263	Copy compilation unit
+1473967047600	Copy compilation unit
+1473967049904	Copy compilation unit
+1473967052755	Copy compilation unit
+1473967081381	Rename type 'CopyOfIdentityTypeBo'
+1473967240831	Copy compilation unit
+1473967259873	Rename type 'CopyOfIdentityTypesApiController'
+1473967329959	Copy compilation unit
+1473967347485	Rename type 'CopyOfIdentityTypesApi'
+1473968904963	Delete element
+1473969391299	Copy compilation unit
+1473969580420	Move compilation units
+1473969614369	Move compilation unit
+1473969709573	Move compilation units
+1473969753736	Copy compilation unit
+1473969873057	Delete elements
+1473969880845	Copy compilation unit
+1473970242708	Copy compilation unit
+1473970407634	Copy compilation unit
+1473970416548	Rename type 'CopyOfPhoneTypeBo'
+1473970869619	Copy compilation unit
+1473970964472	Rename type 'CopyOfBloodGroupsApi'
+1473971324469	Copy compilation unit
+1473972839346	Copy compilation unit
+1473972854476	Rename type 'CopyOfBloodGroupsApi'
+1473973242790	Copy compilation unit
+1473973252706	Rename type 'CopyOfBloodGroupsApiController'
+1473974013840	Copy compilation unit
+1473974049048	Rename type 'CopyOfBloodGroupBo'
+1473974151875	Copy compilation unit
+1473974166830	Rename type 'CopyOfBloodGroupsApi'
+1473974536342	Copy compilation unit
+1473974547295	Rename type 'CopyOfBloodGroupsApiController'
+1474034830844	Delete element
+1474034842866	Copy compilation unit
+1474035352530	Rename field 'person'
+1474036867709	Rename field 'student'

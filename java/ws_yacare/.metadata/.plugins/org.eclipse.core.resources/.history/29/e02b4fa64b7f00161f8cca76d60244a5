@@ -1,0 +1,343 @@
+package org.yacare.model.person;
+
+import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.yacare.model.Gender;
+import org.yacare.model.PersonIdentityDocuments;
+import org.yacare.model.PersonNationalities;
+import org.yacare.model.person.PersonBirth;
+import org.yacare.model.person.PersonCommunicationOptions;
+import org.yacare.model.person.PersonHealthData;
+
+/**
+ * Persona
+ **/
+
+/**
+ * Persona
+ */
+@ApiModel(description = "Persona")
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringCodegen", date = "2016-09-08T13:04:56.524Z")
+public class Person {
+
+	private String id = null;
+
+	private Boolean erased = null;
+
+	private String urlPhoto = null;
+
+	private List<String> givenNames = new ArrayList<String>();
+
+	private List<String> surnames = new ArrayList<String>();
+
+	private Gender gender = null;
+
+	private PersonBirth birth = null;
+
+	private PersonNationalities nationalities = null;
+
+	private PersonIdentityDocuments identityDocuments = null;
+
+	private PersonCommunicationOptions communicationOptions = null;
+
+	private PersonHealthData healthData = null;
+
+	public Person id(String id) {
+		this.id = id;
+		return this;
+	}
+
+	/**
+	 * Identificador (UUID) único de la persona.
+	 * 
+	 * @return id
+	 **/
+	@ApiModelProperty(value = "Identificador (UUID) único de la persona.")
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public Person erased(Boolean erased) {
+		this.erased = erased;
+		return this;
+	}
+
+	/**
+	 * Determina si la persona fue borrada o deshabilitada.
+	 * 
+	 * @return erased
+	 **/
+	@ApiModelProperty(value = "Determina si la persona fue borrada o deshabilitada.")
+	public Boolean getErased() {
+		return erased;
+	}
+
+	public void setErased(Boolean erased) {
+		this.erased = erased;
+	}
+
+	public Person urlPhoto(String urlPhoto) {
+		this.urlPhoto = urlPhoto;
+		return this;
+	}
+
+	/**
+	 * URL de la foto personal.
+	 * 
+	 * @return urlPhoto
+	 **/
+	@ApiModelProperty(value = "URL de la foto personal.")
+	public String getUrlPhoto() {
+		return urlPhoto;
+	}
+
+	public void setUrlPhoto(String urlPhoto) {
+		this.urlPhoto = urlPhoto;
+	}
+
+	public Person givenNames(List<String> givenNames) {
+		this.givenNames = givenNames;
+		return this;
+	}
+
+	public Person addGivenNamesItem(String givenNamesItem) {
+		this.givenNames.add(givenNamesItem);
+		return this;
+	}
+
+	/**
+	 * Nombres de la persona, como por ejemplo Diego, Pablo
+	 * 
+	 * @return givenNames
+	 **/
+	@ApiModelProperty(value = "Nombres de la persona, como por ejemplo Diego, Pablo")
+	public List<String> getGivenNames() {
+		return givenNames;
+	}
+
+	public void setGivenNames(List<String> givenNames) {
+		this.givenNames = givenNames;
+	}
+
+	public Person surnames(List<String> surnames) {
+		this.surnames = surnames;
+		return this;
+	}
+
+	public Person addSurnamesItem(String surnamesItem) {
+		this.surnames.add(surnamesItem);
+		return this;
+	}
+
+	/**
+	 * Apellidos de la persona, como por ejemplo Mansilla, Cendra
+	 * 
+	 * @return surnames
+	 **/
+	@ApiModelProperty(value = "Apellidos de la persona, como por ejemplo Mansilla, Cendra")
+	public List<String> getSurnames() {
+		return surnames;
+	}
+
+	public void setSurnames(List<String> surnames) {
+		this.surnames = surnames;
+	}
+
+	public Person gender(Gender gender) {
+		this.gender = gender;
+		return this;
+	}
+
+	/**
+	 * Get gender
+	 * 
+	 * @return gender
+	 **/
+	@ApiModelProperty(value = "")
+	public Gender getGender() {
+		return gender;
+	}
+
+	public void setGender(Gender gender) {
+		this.gender = gender;
+	}
+
+	public Person birth(PersonBirth birth) {
+		this.birth = birth;
+		return this;
+	}
+
+	/**
+	 * Get birth
+	 * 
+	 * @return birth
+	 **/
+	@ApiModelProperty(value = "")
+	public PersonBirth getBirth() {
+		return birth;
+	}
+
+	public void setBirth(PersonBirth birth) {
+		this.birth = birth;
+	}
+
+	public Person nationalities(PersonNationalities nationalities) {
+		this.nationalities = nationalities;
+		return this;
+	}
+
+	/**
+	 * Get nationalities
+	 * 
+	 * @return nationalities
+	 **/
+	@ApiModelProperty(value = "")
+	public PersonNationalities getNationalities() {
+		return nationalities;
+	}
+
+	public void setNationalities(PersonNationalities nationalities) {
+		this.nationalities = nationalities;
+	}
+
+	public Person identityDocuments(PersonIdentityDocuments identityDocuments) {
+		this.identityDocuments = identityDocuments;
+		return this;
+	}
+
+	/**
+	 * Get identityDocuments
+	 * 
+	 * @return identityDocuments
+	 **/
+	@ApiModelProperty(value = "")
+	public PersonIdentityDocuments getIdentityDocuments() {
+		return identityDocuments;
+	}
+
+	public void setIdentityDocuments(PersonIdentityDocuments identityDocuments) {
+		this.identityDocuments = identityDocuments;
+	}
+
+	public Person communicationOptions(
+			PersonCommunicationOptions communicationOptions) {
+		this.communicationOptions = communicationOptions;
+		return this;
+	}
+
+	/**
+	 * Get communicationOptions
+	 * 
+	 * @return communicationOptions
+	 **/
+	@ApiModelProperty(value = "")
+	public PersonCommunicationOptions getCommunicationOptions() {
+		return communicationOptions;
+	}
+
+	public void setCommunicationOptions(
+			PersonCommunicationOptions communicationOptions) {
+		this.communicationOptions = communicationOptions;
+	}
+
+	public Person healthData(PersonHealthData healthData) {
+		this.healthData = healthData;
+		return this;
+	}
+
+	/**
+	 * Get healthData
+	 * 
+	 * @return healthData
+	 **/
+	@ApiModelProperty(value = "")
+	public PersonHealthData getHealthData() {
+		return healthData;
+	}
+
+	public void setHealthData(PersonHealthData healthData) {
+		this.healthData = healthData;
+	}
+
+	@Override
+	public boolean equals(java.lang.Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		Person person = (Person) o;
+		return Objects.equals(this.id, person.id)
+				&& Objects.equals(this.erased, person.erased)
+				&& Objects.equals(this.urlPhoto, person.urlPhoto)
+				&& Objects.equals(this.givenNames, person.givenNames)
+				&& Objects.equals(this.surnames, person.surnames)
+				&& Objects.equals(this.gender, person.gender)
+				&& Objects.equals(this.birth, person.birth)
+				&& Objects.equals(this.nationalities, person.nationalities)
+				&& Objects.equals(this.identityDocuments,
+						person.identityDocuments)
+				&& Objects.equals(this.communicationOptions,
+						person.communicationOptions)
+				&& Objects.equals(this.healthData, person.healthData);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, erased, urlPhoto, givenNames, surnames, gender,
+				birth, nationalities, identityDocuments, communicationOptions,
+				healthData);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class Person {\n");
+
+		sb.append("    id: ").append(toIndentedString(id)).append("\n");
+		sb.append("    erased: ").append(toIndentedString(erased)).append("\n");
+		sb.append("    urlPhoto: ").append(toIndentedString(urlPhoto))
+				.append("\n");
+		sb.append("    givenNames: ").append(toIndentedString(givenNames))
+				.append("\n");
+		sb.append("    surnames: ").append(toIndentedString(surnames))
+				.append("\n");
+		sb.append("    gender: ").append(toIndentedString(gender)).append("\n");
+		sb.append("    birth: ").append(toIndentedString(birth)).append("\n");
+		sb.append("    nationalities: ")
+				.append(toIndentedString(nationalities)).append("\n");
+		sb.append("    identityDocuments: ")
+				.append(toIndentedString(identityDocuments)).append("\n");
+		sb.append("    communicationOptions: ")
+				.append(toIndentedString(communicationOptions)).append("\n");
+		sb.append("    healthData: ").append(toIndentedString(healthData))
+				.append("\n");
+		sb.append("}");
+		return sb.toString();
+	}
+
+	/**
+	 * Convert the given object to string with each line indented by 4 spaces
+	 * (except the first line).
+	 */
+	private String toIndentedString(java.lang.Object o) {
+		if (o == null) {
+			return "null";
+		}
+		return o.toString().replace("\n", "\n    ");
+	}
+}

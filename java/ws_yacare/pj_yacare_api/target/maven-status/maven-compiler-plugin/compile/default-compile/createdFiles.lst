@@ -1,0 +1,6 @@
+org/utiljdbc/ConnectionWrapper.class
+org/utiljdbc/DataSourceWrapper.class
+org/utiljdbc/DataSourceMetaData.class
+org/utiljdbc/UtilJdbc.class
+org/utiljdbc/SO.class
+org/utiljdbc/ResultList.class

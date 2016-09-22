@@ -1,0 +1,14 @@
+package org.yacare.api.interfaces;
+
+public interface Api {
+	
+	public static String produces = "application/json";
+
+	
+	public static String msg200_2 = "Unexpected error";
+	
+	public static String msg404 = "Recurso no encontrado";
+	public static String msg422 = "Id inválido";
+	public static String msg500 = "Error interno del servidor";
+
+}

@@ -1,0 +1,153 @@
+package org.yacare.model;
+
+import java.util.Objects;
+
+import org.yacare.model.person.PersonCommunicationOptionsAddresses;
+import org.yacare.model.person.PersonCommunicationOptionsEmails;
+import org.yacare.model.person.PersonCommunicationOptionsPhones;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+
+
+/**
+ * Opciones para comunicarse con la persona, como domicilio, teléfonos, correos electrónicos, etc.
+ **/
+
+/**
+ * Opciones para comunicarse con la persona, como domicilio, teléfonos, correos electrónicos, etc.
+ */
+@ApiModel(description = "Opciones para comunicarse con la persona, como domicilio, teléfonos, correos electrónicos, etc.")
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringCodegen", date = "2016-09-08T13:04:56.524Z")
+
+public class PersonCommunicationOptions   {
+  private PersonCommunicationOptionsAddresses addresses = null;
+
+  private PersonCommunicationOptionsEmails emails = null;
+
+  private PersonCommunicationOptionsPhones phones = null;
+
+  private String comment = null;
+
+  public PersonCommunicationOptions addresses(PersonCommunicationOptionsAddresses addresses) {
+    this.addresses = addresses;
+    return this;
+  }
+
+   /**
+   * Get addresses
+   * @return addresses
+  **/
+  @ApiModelProperty(value = "")
+  public PersonCommunicationOptionsAddresses getAddresses() {
+    return addresses;
+  }
+
+  public void setAddresses(PersonCommunicationOptionsAddresses addresses) {
+    this.addresses = addresses;
+  }
+
+  public PersonCommunicationOptions emails(PersonCommunicationOptionsEmails emails) {
+    this.emails = emails;
+    return this;
+  }
+
+   /**
+   * Get emails
+   * @return emails
+  **/
+  @ApiModelProperty(value = "")
+  public PersonCommunicationOptionsEmails getEmails() {
+    return emails;
+  }
+
+  public void setEmails(PersonCommunicationOptionsEmails emails) {
+    this.emails = emails;
+  }
+
+  public PersonCommunicationOptions phones(PersonCommunicationOptionsPhones phones) {
+    this.phones = phones;
+    return this;
+  }
+
+   /**
+   * Get phones
+   * @return phones
+  **/
+  @ApiModelProperty(value = "")
+  public PersonCommunicationOptionsPhones getPhones() {
+    return phones;
+  }
+
+  public void setPhones(PersonCommunicationOptionsPhones phones) {
+    this.phones = phones;
+  }
+
+  public PersonCommunicationOptions comment(String comment) {
+    this.comment = comment;
+    return this;
+  }
+
+   /**
+   * Comentarios, aclaraciones u otros medios de contacto de la persona.
+   * @return comment
+  **/
+  @ApiModelProperty(value = "Comentarios, aclaraciones u otros medios de contacto de la persona.")
+  public String getComment() {
+    return comment;
+  }
+
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
+
+
+  @Override
+  public boolean equals(java.lang.Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PersonCommunicationOptions personCommunicationOptions = (PersonCommunicationOptions) o;
+    return Objects.equals(this.addresses, personCommunicationOptions.addresses) &&
+        Objects.equals(this.emails, personCommunicationOptions.emails) &&
+        Objects.equals(this.phones, personCommunicationOptions.phones) &&
+        Objects.equals(this.comment, personCommunicationOptions.comment);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(addresses, emails, phones, comment);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class PersonCommunicationOptions {\n");
+    
+    sb.append("    addresses: ").append(toIndentedString(addresses)).append("\n");
+    sb.append("    emails: ").append(toIndentedString(emails)).append("\n");
+    sb.append("    phones: ").append(toIndentedString(phones)).append("\n");
+    sb.append("    comment: ").append(toIndentedString(comment)).append("\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(java.lang.Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\n", "\n    ");
+  }
+}
+

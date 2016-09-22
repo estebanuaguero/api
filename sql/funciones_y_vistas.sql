@@ -606,7 +606,7 @@ CREATE OR REPLACE FUNCTION yacare.f_phone_type(offsetArg INTEGER, limitArg INTEG
 
 	SELECT 	COALESCE('[ ' || string_agg(phone_type.json,', ' ORDER BY phone_type.name) || ']', 'null')	
 	FROM 	yacare.v_phone_type_json AS phone_type
-	WHERE	phone_type.state_enable = true
+	WHERE	phone_type.state_enable = true	
 	OFFSET $1 
 	LIMIT $2	
 	
@@ -1028,7 +1028,7 @@ CREATE OR REPLACE VIEW yacare.v_person AS
 		pp.education_level_type_id 		
 
 	FROM 	yacare.physical_person pp
-	WHERE	pp.state_enable = true;	
+	WHERE	pp.state_enable = true;
 	
 
 -- SELECT * FROM yacare.v_person;
@@ -1400,6 +1400,7 @@ CREATE OR REPLACE VIEW yacare.v_legal_guardian_json AS
 						JOIN yacare.student s
 							ON 	s.physical_person_id = pp_child.id
 							AND 	s.state_enable = true
+							-- falta condicionar por el estdo, que no sea egresado
 			WHERE	fr.physical_person_id = person.id
 				AND 	fr.legal_responsibility = true
 				AND 	fr.state_enable = true	
@@ -1603,12 +1604,12 @@ CREATE OR REPLACE VIEW yacare.v_admission_act_enrollment_json AS
 			|| yacare.ja('erased', (NOT admission_act.state_enable)::BOOLEAN)			
 			|| yacare.ja('academicYear', year_calendar.json, false, false, false)	
 			|| yacare.ja('period', period.json, false, false, false)
-			|| ', "admissionEnrollment":{'
+			--|| ', "admissionEnrollment":{'
 				--|| yacare.ja('enrollmentDate', 'Matrícula admitida y sin confirmar', true)
 				--|| yacare.ja('admissionDate', null, true)
 				--|| yacare.ja('enrollmentDate', null)
 				
-			|| '}'	
+			--|| '}'	
 			--|| yacare.ja('mainSchoolShift', turn.json, false, false)	
 			|| yacare.ja('state', state_value.json, false, false, false)	
 			
@@ -1686,6 +1687,7 @@ FROM	(
 	SELECT 	enrollment.json::VARCHAR 
 	FROM	yacare.v_admission_act_enrollment_json enrollment   
 	WHERE 	enrollment.student_id = $3 AND ((enrollment_id IS NULL AND $4 = true) OR (enrollment_id IS NOT NULL AND $4 = false)) --WHERE ($3 IS NULL OR enrollment.student_id = $3) 
+	-- AGREGAR CONTROL POR AÑO CALENDARIO ACTUAL 	
 	ORDER BY enrollment.year_calendar
 	OFFSET 	$1
 	LIMIT	$2	

@@ -1,0 +1,91 @@
+package org.yacare.model.person;
+
+import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.yacare.model.Gender;
+import org.yacare.model.PersonIdentityDocuments;
+import org.yacare.model.PersonNationalities;
+import org.yacare.model.person.PersonBirth;
+import org.yacare.model.person.PersonCommunicationOptions;
+import org.yacare.model.person.PersonHealthData;
+
+/**
+ * Persona
+ **/
+
+/**
+ * Persona
+ */
+@ApiModel(description = "Persona")
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringCodegen", date = "2016-09-08T13:04:56.524Z")
+public class PersonId {
+
+	private String id = null;
+
+	public PersonId id(String id) {
+		this.id = id;
+		return this;
+	}
+
+	/**
+	 * Identificador (UUID) único de la persona.
+	 * 
+	 * @return id
+	 **/
+	@ApiModelProperty(value = "Identificador (UUID) único de la persona.")
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	@Override
+	public boolean equals(java.lang.Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		PersonId person = (PersonId) o;
+		return Objects.equals(this.id, person.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class Person {\n");
+
+		sb.append("    id: ").append(toIndentedString(id)).append("\n");
+
+		sb.append("}");
+		return sb.toString();
+	}
+
+	/**
+	 * Convert the given object to string with each line indented by 4 spaces
+	 * (except the first line).
+	 */
+	private String toIndentedString(java.lang.Object o) {
+		if (o == null) {
+			return "null";
+		}
+		return o.toString().replace("\n", "\n    ");
+	}
+}

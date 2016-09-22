@@ -1,0 +1,15 @@
+package org.yacare.api.interfaces;
+
+public interface Api {
+	
+	public static final String msg404 = "Recurso no encontrado";
+	public static final String msg422 = "Id inválido";
+	public static final String msg500 = "Error interno del servidor";
+	
+	public static String endPointArg1Title_1 = "Desplazamiento de la lista de resultados devueltos por esta cantidad. El valor predeterminado es cero.";
+	public static String endPointArg1_1 = "offset";
+	
+	public static String endPointArg2Title_1 = "Número de objetos que se recuperará. El valor predeterminado es 5, el máximo es 100.";	
+	public static String endPointArg2_1 = "limit";
+
+}

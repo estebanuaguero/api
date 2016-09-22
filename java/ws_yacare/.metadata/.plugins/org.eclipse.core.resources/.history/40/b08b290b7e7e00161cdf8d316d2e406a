@@ -1,0 +1,9 @@
+package org.yacare.api.interfaces;
+
+public interface Api {
+	
+	
+	
+	
+
+}

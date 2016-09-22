@@ -1,0 +1,9 @@
+package org.yacare.api.interfaces;
+
+public interface Api {
+	
+	public static String msg404 = "Recurso no encontrado";
+	public static String msg422 = "Id inválido";
+	public static final String msg500 = "Error interno del servidor";
+
+}

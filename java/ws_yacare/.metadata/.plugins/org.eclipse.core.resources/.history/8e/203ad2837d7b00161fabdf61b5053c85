@@ -1,0 +1,52 @@
+package org.yacare.api;
+
+import io.swagger.annotations.ApiParam;
+
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.yacare.Swagger2SpringBoot;
+import org.yacare.api.interfaces.BloodFactorsApi;
+import org.yacare.bo.BloodFactorBo;
+import org.yacare.model.BloodFactor;
+
+
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringCodegen", date = "2016-09-08T13:04:56.524Z")
+@Controller
+public class BloodFactorsApiController implements BloodFactorsApi {
+
+	@CrossOrigin(origins = "http://localhost:9000")
+	public ResponseEntity<BloodFactor> identityTypeIdGet(
+			@ApiParam(value = "identificador del tipo de documento de identidad", required = true) @PathVariable("id") String id
+
+	) {
+		// do some magic!
+		return new ResponseEntity<BloodFactor>(HttpStatus.OK);
+	}
+
+	@CrossOrigin(origins = "http://localhost:9000")
+	public ResponseEntity<List<BloodFactor>> identityTypesGet(
+			@ApiParam(value = "Desplazamiento de la lista de resultados devueltos por esta cantidad. El valor predeterminado es cero.") @RequestParam(value = "offset", required = false) Integer offset
+
+			,
+			@ApiParam(value = "Número de objetos que se recuperará. El valor predeterminado es 5, el máximo es 100.") @RequestParam(value = "limit", required = false) Integer limit
+
+	) {
+
+		BloodFactorBo identityTypeBo = new BloodFactorBo();
+		identityTypeBo.setDataSourceWrapper(Swagger2SpringBoot
+				.getDataSourceWrapper());
+
+		List<BloodFactor> identityTypes = identityTypeBo.getIdentityTypes(
+				offset, limit);
+
+		return new ResponseEntity<List<BloodFactor>>(identityTypes,
+				HttpStatus.OK);
+	}
+
+}

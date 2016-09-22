@@ -1,0 +1,51 @@
+package org.yacare.bo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.utiljdbc.ConnectionWrapper;
+import org.yacare.model.AnnualEnrollment;
+
+public class AnnualEnrollmentBo extends AbstractBo {
+
+	private final String MSG_2 = "Error al tratar de obtener las matrículas anuales.";
+
+	public List<AnnualEnrollment> getBloodFactors(Integer offset, Integer limit) {
+		try {
+
+			if (offset == null) {
+				offset = 0;
+			}
+			if (limit == null) {
+				limit = 5;
+			}
+
+			if (limit > 100) {
+				limit = 100;
+			}
+
+			ConnectionWrapper connectionWrapper = this.getDataSourceWrapper()
+					.getConnectionWrapper();
+
+			String sql = "SELECT * FROM yacare.f_blood_factor(?, ?);";
+
+			List<Object> list = connectionWrapper.findToJsonArray(sql,
+					AnnualEnrollment.class, offset, limit);
+
+			List<AnnualEnrollment> bloodFactors = new ArrayList<AnnualEnrollment>();
+
+			for (Object o : list) {
+				bloodFactors.add((AnnualEnrollment) o);
+			}
+
+			connectionWrapper.close();
+
+			return bloodFactors;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(MSG_2);
+		}
+	}
+
+}
