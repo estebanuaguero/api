@@ -964,7 +964,7 @@ $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
 -- ____________________________________________________ EMERGENCY CONTACTS _________________________________________________________________
 
-/*
+
 
 DROP FUNCTION IF EXISTS yacare.f_emergency_contacts_by_person_id(person_id character varying) CASCADE;
 
@@ -994,7 +994,7 @@ CREATE OR REPLACE FUNCTION yacare.f_emergency_contacts_by_person_id(person_id ch
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
 -- SELECT * FROM yacare.f_emergency_contacts_by_person_id(2c9090b544db0f6f0144e5dc8b130778);
-*/
+
 -- ____________________________________________________ PERSON _________________________________________________________________
 
 
