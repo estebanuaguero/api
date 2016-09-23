@@ -293,6 +293,8 @@ $$  LANGUAGE plpgsql;
 --							GEO OBJECTS
 -- =============================================================================================================================
 
+
+
 -- ____________________________________________________ COUNTRY _________________________________________________________________
 
 
@@ -616,27 +618,40 @@ $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
 ------------------------------------------------------------------------------------------------------------------------------
 
-/*
 
-DROP VIEW IF EXISTS yacare.v_phone CASCADE; 
 
-CREATE OR REPLACE VIEW yacare.v_phone AS
+DROP VIEW IF EXISTS yacare.v_phone_json CASCADE; 
 
-	SELECT 	*,
+CREATE OR REPLACE VIEW yacare.v_phone_json AS
+
+	SELECT 	t.id, 
 		(
 		'{'
-			|| yacare.ja('id', TRIM(t.id), true)
-			|| yacare.ja('erased', (NOT t.state_enable)::BOOLEAN)			
-			|| yacare.ja('number', TRIM(t.name))			
-			|| yacare.ja('comment', TRIM(t.comment))
+			|| yacare.ja('id', t.id, true)
+			|| yacare.ja('erased', (not t.state_enable)::boolean)
+			|| yacare.ja('localCallingCode', t.local_calling_code)
+			|| yacare.ja('number', t.name)
+			|| yacare.ja('comment', t.comment)
+			--|| yacare.ja('phoneType', pt.json,false,false)
+			||', "phoneType": {'
+				|| yacare.ja('id', TRIM(pt.id), true)
+				|| yacare.ja('erased', (NOT pt.state_enable)::BOOLEAN)
+				|| yacare.ja('code', TRIM(pt.code))
+				|| yacare.ja('name', TRIM(pt.name))			
+				|| yacare.ja('description', TRIM(pt.comment))
+			
+			|| '}'
 			
 		|| '}'
 		)::VARCHAR AS json
-	FROM	yacare.phone t;	
+	FROM	yacare.phone t
+	left join yacare.phone_type pt 
+		on  t.phone_type_id = pt.id
+	where t.state_enable=true;	
 
--- SELECT * FROM yacare.v_phone;
+-- SELECT * FROM yacare.v_phone_json;
 
-*/
+
 
 ------------------------------------------------------------------------------------------------------------------------------
 
@@ -970,6 +985,8 @@ DROP FUNCTION IF EXISTS yacare.f_emergency_contacts_by_person_id(person_id chara
 
 CREATE OR REPLACE FUNCTION yacare.f_emergency_contacts_by_person_id(person_id character varying) RETURNS SETOF character varying AS $BODY$
 
+SELECT 	COALESCE('[ ' || string_agg(t.json,', ' ) || ']', 'null')	
+FROM	(
 	SELECT 	
 		(
 			'{'
@@ -979,21 +996,43 @@ CREATE OR REPLACE FUNCTION yacare.f_emergency_contacts_by_person_id(person_id ch
 				|| yacare.ja('name', contact.contact_name)
 				|| yacare.ja('lastName', contact.contact_last_name)
 				|| yacare.ja('relationship', contact.contact_relationship)
-				|| yacare.ja('phone', phone.json, false, false, false)	
-				|| yacare.ja('comment', contact.comment)				
+				--|| yacare.ja('phone', phone.json, false, false, false)
+				||COALESCE(', "phone":{'
+					|| yacare.ja('id', phone.id, true)
+					|| yacare.ja('erased', (not phone.state_enable)::boolean)
+					|| yacare.ja('localCallingCode', phone.local_calling_code)
+					|| yacare.ja('number', phone.name)
+					|| yacare.ja('comment', phone.comment)
+					--|| yacare.ja('phoneType', pt.json,false,false)
+					|| COALESCE(',"phoneType": {'
+						|| yacare.ja('id', TRIM(pt.id), true)
+						|| yacare.ja('erased', (NOT pt.state_enable)::BOOLEAN)
+						|| yacare.ja('code', TRIM(pt.code))
+						|| yacare.ja('name', TRIM(pt.name))			
+						|| yacare.ja('description', TRIM(pt.comment))
+					
+					|| '}', '')
+					
+				|| '}', '')
+				
+				
+							
 			------------------------------------------------------------------------------------------------
 			|| '}'
 		)::VARCHAR AS json		
-	FROM	yacare.physical_person_emergency_contacts contacts
-	JOIN	yacare.phone_json phone
-		ON contacts.phone_id = phone.id		
-	WHERE 	contacts.physical_person_id = $1	
-		AND	contacts.state_enable = true
-	ORDER BY contacts.last_name, contacts.name				
+	FROM	yacare.physical_person_emergency_contacts contact
+	left JOIN yacare.phone phone
+		ON contact.phone_id = phone.id and phone.state_enable=true
+	left join yacare.phone_type pt 
+		on phone.id = pt.id
+	WHERE 	contact.physical_person_id = $1
+		AND	contact.state_enable = true
+	ORDER BY contact.contact_last_name, contact.contact_name	
+) as t			
 
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
--- SELECT * FROM yacare.f_emergency_contacts_by_person_id(2c9090b544db0f6f0144e5dc8b130778);
+-- SELECT * FROM yacare.f_emergency_contacts_by_person_id('79cac2d7-d722-444a-a0e7-2f7983bbbea2');
 
 -- ____________________________________________________ PERSON _________________________________________________________________
 
