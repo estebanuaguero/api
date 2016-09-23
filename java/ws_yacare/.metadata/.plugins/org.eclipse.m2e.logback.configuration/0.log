@@ -8268,3 +8268,17 @@ java.lang.NullPointerException: null
 2016-09-22 11:50:28,609 [Worker-41] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
 2016-09-22 11:50:28,612 [Worker-41] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
 2016-09-22 11:50:28,612 [Worker-41] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory /home/java/Dropbox/dev/ws_yacare/pj_yacare_api/src/test/resources
+2016-09-22 14:47:44,707 [Worker-15] INFO  o.e.m.i.launch.MavenLaunchDelegate - /home/java/Dropbox/dev/yacare/git/api_rep/api/java/ws_yacare/pj_yacare_api
+2016-09-22 14:47:44,800 [Worker-15] INFO  o.e.m.i.launch.MavenLaunchDelegate -  mvn  -B install
+2016-09-22 14:48:45,830 [Worker-15] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2016-09-22 14:48:46,919 [Worker-15] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 1 resource
+2016-09-22 14:48:47,347 [Worker-15] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2016-09-22 14:48:47,352 [Worker-15] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2016-09-22 14:48:47,353 [Worker-15] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory /home/java/Dropbox/dev/yacare/git/api_rep/api/java/ws_yacare/pj_yacare_api/src/test/resources
+2016-09-23 10:37:36,524 [Worker-3] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2016-09-23 10:37:36,580 [Worker-3] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 1 resource
+2016-09-23 10:37:36,632 [Worker-3] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2016-09-23 10:37:36,638 [Worker-3] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2016-09-23 10:37:36,638 [Worker-3] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory /home/java/Dropbox/dev/yacare/git/api_rep/api/java/ws_yacare/pj_yacare_api/src/test/resources
+2016-09-23 10:37:40,827 [Worker-3] INFO  o.e.m.i.launch.MavenLaunchDelegate - /home/java/Dropbox/dev/yacare/git/api_rep/api/java/ws_yacare/pj_yacare_api
+2016-09-23 10:37:40,827 [Worker-3] INFO  o.e.m.i.launch.MavenLaunchDelegate -  mvn  -B install
