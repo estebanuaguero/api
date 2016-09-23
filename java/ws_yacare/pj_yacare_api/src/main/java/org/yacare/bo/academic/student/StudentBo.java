@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.utiljdbc.ConnectionWrapper;
 import org.yacare.bo.AbstractBo;
+import org.yacare.model.academic.student.EmergencyContact;
 import org.yacare.model.academic.student.FamilyLegalGuardian;
 import org.yacare.model.academic.student.Student;
 import org.yacare.model.academic.student.annual_enrollment.AnnualEnrollment;
@@ -127,6 +128,21 @@ public class StudentBo extends AbstractBo {
 				}
 
 				student.setLegalGuardians(legalGuardians);
+				
+				// ----------------------------------
+
+				sql = "SELECT * FROM yacare.f_emergency_contacts_by_person_id(?);";
+
+				list = connectionWrapper.findToJsonArray(sql,
+						EmergencyContact.class, personId);
+
+				List<EmergencyContact> emergencyContacts = new ArrayList<EmergencyContact>();
+
+				for (Object o : list) {
+					emergencyContacts.add((EmergencyContact) o);
+				}
+
+				student.setEmergencyContacts(emergencyContacts);
 
 			}
 
@@ -266,6 +282,23 @@ public class StudentBo extends AbstractBo {
 					student.getPersonalInformation().getCommunicationOptions()
 							.getPhones()
 							.setAlternativePhones(alternativePhones);
+					
+					
+					// ----------------------------------
+					
+					sql = "SELECT * FROM yacare.f_emergency_contacts_by_person_id(?);";
+
+					list = connectionWrapper.findToJsonArray(sql,
+							EmergencyContact.class, personId);
+
+					List<EmergencyContact> emergencyContacts = new ArrayList<EmergencyContact>();
+
+					for (Object o : list) {
+						emergencyContacts.add((EmergencyContact) o);
+					}
+
+					student.setEmergencyContacts(emergencyContacts);
+
 
 				}
 
