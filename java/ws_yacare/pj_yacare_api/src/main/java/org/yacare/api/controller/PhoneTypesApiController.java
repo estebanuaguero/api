@@ -19,8 +19,8 @@ import org.yacare.model.person.communication_options.phone.PhoneType;
 public class PhoneTypesApiController implements PhoneTypesApi {
 
 	// -------------------------------------------------------------------------------
-
-	@CrossOrigin(origins = "http://localhost:9000")
+  
+	@CrossOrigin(origins = "*")
 	public ResponseEntity<List<PhoneType>> getList(
 			@ApiParam(value = endPointArg1Title_1) @RequestParam(value = endPointArg1_1, required = false) Integer offset,
 			@ApiParam(value = endPointArg2Title_1) @RequestParam(value = endPointArg2_1, required = false) Integer limit) {
@@ -30,7 +30,7 @@ public class PhoneTypesApiController implements PhoneTypesApi {
 
 	// -------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:9000")
+	@CrossOrigin(origins = "*")
 	public ResponseEntity<PhoneType> getById(
 			@ApiParam(value = endPointArg1Title_2, required = true) @PathVariable(endPointArg1_2) String id) {
 

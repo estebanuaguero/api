@@ -20,7 +20,7 @@ public class LegalGuardiansApiController implements LegalGuardiansApi {
 
 	// -------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:9000")
+	@CrossOrigin(origins = "*")
 	public ResponseEntity<List<LegalGuardian>> getList(
 			@ApiParam(value = endPointArg1Title_1) @RequestParam(value = endPointArg1_1, required = false) Integer offset,
 			@ApiParam(value = endPointArg2Title_1) @RequestParam(value = endPointArg2_1, required = false) Integer limit) {
@@ -30,13 +30,13 @@ public class LegalGuardiansApiController implements LegalGuardiansApi {
 
 	// -------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:9000")
+	@CrossOrigin(origins = "*")
 	public ResponseEntity<LegalGuardian> getById(
 			@ApiParam(value = endPointArg1Title_2, required = true) @PathVariable(endPointArg1_2) String id) {
 
 		return getLegalGuardianByPersonId(id);
 	}
-
+ 
 	// ================================================================================
 
 	private ResponseEntity<LegalGuardian> getLegalGuardianByPersonId(String id) {

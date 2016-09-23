@@ -18,9 +18,10 @@ import org.yacare.model.academic.student.annual_enrollment.AnnualEnrollment;
 @Controller
 public class AnnualEnrollmentsApiController implements AnnualEnrollmentsApi {
 
-	// -------------------------------------------------------------------------------
-
-	@CrossOrigin(origins = "http://localhost:9000")
+	// --------------------------------------------------------------------------------
+ 
+	@CrossOrigin(origins = "*")
+	//@CrossOrigin(origins = "http://localhost:9000")
 	public ResponseEntity<List<AnnualEnrollment>> getList(
 			@ApiParam(value = endPointArg1Title_1) @RequestParam(value = endPointArg1_1, required = false) Integer offset,
 			@ApiParam(value = endPointArg2Title_1) @RequestParam(value = endPointArg2_1, required = false) Integer limit,
@@ -32,7 +33,7 @@ public class AnnualEnrollmentsApiController implements AnnualEnrollmentsApi {
 
 	// -------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:9000")
+	@CrossOrigin(origins = "*")
 	public ResponseEntity<AnnualEnrollment> getById(
 			@ApiParam(value = endPointArg1Title_2, required = true) @PathVariable(endPointArg1_2) String id) {
 

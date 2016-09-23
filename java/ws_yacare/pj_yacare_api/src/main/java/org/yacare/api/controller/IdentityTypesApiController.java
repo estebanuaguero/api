@@ -20,17 +20,17 @@ public class IdentityTypesApiController implements IdentityTypesApi {
 
 	// -------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:9000")
+	@CrossOrigin(origins = "*")
 	public ResponseEntity<List<IdentityType>> getList(
 			@ApiParam(value = endPointArg1Title_1) @RequestParam(value = endPointArg1_1, required = false) Integer offset,
 			@ApiParam(value = endPointArg2Title_1) @RequestParam(value = endPointArg2_1, required = false) Integer limit) {
 
 		return getIdentityTypes(offset, limit);
 	}
-
+ 
 	// -------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:9000")
+	@CrossOrigin(origins = "*")
 	public ResponseEntity<IdentityType> getById(
 			@ApiParam(value = endPointArg1Title_2, required = true) @PathVariable(endPointArg1_2) String id) {
 

@@ -19,8 +19,8 @@ import org.yacare.model.health.BloodGroup;
 public class BloodGroupsApiController implements BloodGroupsApi {
 	
 	// -------------------------------------------------------------------------------
-
-	@CrossOrigin(origins = "http://localhost:9000")
+ 
+	@CrossOrigin(origins = "*")
 	public ResponseEntity<List<BloodGroup>> getList(
 			@ApiParam(value = endPointArg1Title_1) @RequestParam(value = endPointArg1_1, required = false) Integer offset,
 			@ApiParam(value = endPointArg2Title_1) @RequestParam(value = endPointArg2_1, required = false) Integer limit) {
@@ -30,7 +30,7 @@ public class BloodGroupsApiController implements BloodGroupsApi {
 
 	// -------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:9000")
+	@CrossOrigin(origins = "*")
 	public ResponseEntity<BloodGroup> getById(
 			@ApiParam(value = endPointArg1Title_2, required = true) @PathVariable(endPointArg1_2) String id) {
 
