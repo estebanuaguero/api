@@ -1,5 +1,0 @@
-package org.yacare.model;
-
-public interface Prueba {
-
-}

@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Rename resource &apos;spring-server&apos; to &apos;pj_yacare_api&apos;" description="Rename resource &apos;spring-server&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/spring-server" name="pj_yacare_api" stamp="1473693040875" updateReferences="true"/>
-</session>

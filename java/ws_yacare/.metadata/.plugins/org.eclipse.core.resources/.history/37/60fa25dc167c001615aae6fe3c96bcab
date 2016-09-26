@@ -1,8 +1,0 @@
-package org.yacare.model;
-
-public class Snippet {
-	El front en español, lo de singular o plural para el front supongo que dependerá del caso. Tiene razón Tere que el front no debería estar en ingles.
-	El back preferiría el nombre del recurso en ingles y plural.
-	
-}
-

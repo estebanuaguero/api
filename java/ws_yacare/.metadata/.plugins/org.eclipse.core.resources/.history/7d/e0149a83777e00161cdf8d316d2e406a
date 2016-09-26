@@ -1,7 +1,0 @@
-package org.yacare.api.interfaces;
-
-public interface Api {
-	
-	public static String msg500 = "Error interno del servidor";
-
-}
