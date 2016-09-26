@@ -1822,7 +1822,8 @@ CREATE OR REPLACE VIEW yacare.v_student_json AS
 		student.id AS student_id,
 		('{'
 		------------------------------------------------------------------------------------------------
-			|| yacare.ja('id', student.id, true)
+			--|| yacare.ja('id', student.id, true)
+			|| yacare.ja('id', person.id, true)
 			|| yacare.ja('erased', (NOT student.state_enable)::BOOLEAN)
 			|| yacare.ja('personalInformation', person.json, false, false, false)
 			|| ', "institution":{'	
