@@ -36,11 +36,11 @@ public class LegalGuardiansApiController implements LegalGuardiansApi {
 
 		return getLegalGuardianByPersonId(id);
 	}
- 
+
 	// ================================================================================
 
 	private ResponseEntity<LegalGuardian> getLegalGuardianByPersonId(String id) {
-		
+
 		if (id == null || id.trim().length() == 0) {
 			return new ResponseEntity<LegalGuardian>(
 					HttpStatus.UNPROCESSABLE_ENTITY);
@@ -52,17 +52,18 @@ public class LegalGuardiansApiController implements LegalGuardiansApi {
 
 		LegalGuardian legalGuardian = legalGuardianBo
 				.getLegalGuardianByPersonId(id);
-		
+
 		if (legalGuardian == null) {
 			return new ResponseEntity<LegalGuardian>(HttpStatus.NOT_FOUND);
 		} else if (legalGuardian.getPersonalInformation().getId() == null
-				|| legalGuardian.getPersonalInformation().getId().trim().length() == 0) {
+				|| legalGuardian.getPersonalInformation().getId().trim()
+						.length() == 0) {
 			return new ResponseEntity<LegalGuardian>(HttpStatus.NOT_FOUND);
 		}
 
 		return new ResponseEntity<LegalGuardian>(legalGuardian, HttpStatus.OK);
 	}
-	
+
 	// -------------------------------------------------------------------------------
 
 	private ResponseEntity<List<LegalGuardian>> getLegalGuardians(

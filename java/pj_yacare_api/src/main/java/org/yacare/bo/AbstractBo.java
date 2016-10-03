@@ -1,6 +1,6 @@
 package org.yacare.bo;
 
-import org.utiljdbc.DataSourceWrapper;
+import org.cendra.commons.utiljdbc.DataSourceWrapper;
 
 public class AbstractBo {
 	

@@ -3,7 +3,7 @@ package org.yacare.model.academic.student.legal_guardian;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.utiljdbc.ConnectionWrapper;
+import org.cendra.commons.utiljdbc.ConnectionWrapper;
 import org.yacare.bo.AbstractBo;
 
 public class EducationLevelBo extends AbstractBo {

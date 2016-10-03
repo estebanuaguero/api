@@ -3,7 +3,7 @@ package org.yacare.bo.health;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.utiljdbc.ConnectionWrapper;
+import org.cendra.commons.utiljdbc.ConnectionWrapper;
 import org.yacare.bo.AbstractBo;
 import org.yacare.model.health.BloodGroup;
 

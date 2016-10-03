@@ -1,17 +1,60 @@
-﻿DROP TABLE IF EXISTS yacare.gender CASCADE;
+﻿
+
+-- ALTER TABLE yacare.physical_person ADD COLUMN main_email character varying;
+
+------------------------------------------------------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS yacare.legal_guardian_user CASCADE;
+
+CREATE TABLE yacare.legal_guardian_user
+(
+	  id VARCHAR NOT NULL,
+	  erased BOOLEAN DEFAULT false NOT NULL,
+	  password  VARCHAR NOT NULL,	  
+	  physical_person_id VARCHAR NOT NULL,
+	  
+	  CONSTRAINT legal_guardian_user_pkey PRIMARY KEY (id),
+	  CONSTRAINT physical_person_id_fkey FOREIGN KEY (physical_person_id)
+		REFERENCES yacare.physical_person (id) MATCH SIMPLE
+		ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+-- SELECT * FROM yacare.legal_guardian_user;
+
+------------------------------------------------------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS yacare.legal_guardian_user_token CASCADE;
+
+CREATE TABLE yacare.legal_guardian_user_token
+(
+	  id VARCHAR NOT NULL,
+	  erased BOOLEAN DEFAULT false NOT NULL,	  	  
+	  used BOOLEAN DEFAULT false NOT NULL,
+	  creation_date TIMESTAMP NOT NULL DEFAULT now()::TIMESTAMP,
+	  legal_guardian_user_id VARCHAR NOT NULL,
+	  
+	  CONSTRAINT legal_guardian_user_token_pkey PRIMARY KEY (id),
+	  CONSTRAINT legal_guardian_user_id_fkey FOREIGN KEY (legal_guardian_user_id)
+		REFERENCES yacare.legal_guardian_user (id) MATCH SIMPLE
+		ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+-- SELECT * FROM yacare.legal_guardian_user_token;
+
+------------------------------------------------------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS yacare.gender CASCADE;
 
 CREATE TABLE yacare.gender
 (
-	  id character varying(255) NOT NULL,
-	  erased boolean,
-	  code character varying(50),
-	  name character varying(50),
-	  description character varying(255),  
+	  id VARCHAR NOT NULL,
+	  erased BOOLEAN DEFAULT false NOT NULL,
+	  code VARCHAR NOT NULL UNIQUE,	  
+	  name VARCHAR NOT NULL UNIQUE,	  
+	  description VARCHAR,  
 	  CONSTRAINT gender_pkey PRIMARY KEY (id)
 );
 
-
--- =============================================================================================================================
 
 DELETE FROM yacare.gender;
 
@@ -1064,7 +1107,8 @@ CREATE OR REPLACE VIEW yacare.v_person AS
 		pp.blood_factor_id,
 		pp.comment, 
 		pp.file_number,
-		pp.education_level_type_id 		
+		pp.education_level_type_id,
+		pp.main_email 		
 
 	FROM 	yacare.physical_person pp
 	WHERE	pp.state_enable = true;
@@ -1079,9 +1123,10 @@ DROP VIEW IF EXISTS yacare.v_person_json CASCADE;
 CREATE OR REPLACE VIEW yacare.v_person_json AS
 
 	SELECT	person.id,
-		person.file_number, 
-		person.comment, 
-		education_level_type_id,
+		person.identification_number,
+		person.file_number, 		
+		person.comment, 		
+		person.education_level_type_id,		
 		('{'
 		------------------------------------------------------------------------------------------------
 			|| yacare.ja('id', person.id, true)
@@ -1150,21 +1195,7 @@ CREATE OR REPLACE VIEW yacare.v_person_json AS
 								
 				|| '}'
 				|| ', "emails":{'	
-					|| yacare.ja('mainEmail', 					
-						COALESCE(
-						(
-							/*
-							SELECT 	email.json
-							FROM	yacare.physical_person_email_list mail_list							
-							LEFT JOIN yacare.v_email email
-								ON mail_list.email_id = email.id
-							WHERE person.id = mail_list.physical_person_id		
-							ORDER BY email.id		
-							LIMIT 1
-							*/
-							null
-						)::VARCHAR, 'null')::VARCHAR 
-					, false, true)	
+					|| yacare.ja('mainEmail', COALESCE(person.main_email, 'null')::VARCHAR, false, true)	
 					|| yacare.ja('alternativeEmails', 
 						(
 							/*
@@ -1392,6 +1423,33 @@ $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 -- ____________________________________________________ LEGAL GUARDIAN  _________________________________________________________________
 
 
+DROP FUNCTION IF EXISTS yacare.f_legal_guardian_check(id_person_arg VARCHAR) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_legal_guardian_check(id_person_arg VARCHAR) RETURNS BOOLEAN AS $BODY$
+
+			SELECT 	COUNT(*) > 0
+			FROM 	yacare.family_relationship fr
+				JOIN	yacare.physical_person_family_relationship_list ppfrl
+					ON 	ppfrl.family_relationship_id = fr.id
+					JOIN 	yacare.physical_person pp_child	
+						ON 	ppfrl.physical_person_id = pp_child.id
+						AND	pp_child.state_enable = true
+						JOIN yacare.student s
+							ON 	s.physical_person_id = pp_child.id
+							AND 	s.state_enable = true
+							-- falta condicionar por el estdo, que no sea egresado
+			WHERE	fr.physical_person_id = $1
+				AND 	fr.legal_responsibility = true
+				AND 	fr.state_enable = true	
+	
+$BODY$ LANGUAGE sql; -- VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_legal_guardian_check('31438562-21c3-47fa-a211-6c97262894b5');
+
+
+			
+
+
 DROP VIEW IF EXISTS yacare.v_legal_guardian_json CASCADE; 
 
 CREATE OR REPLACE VIEW yacare.v_legal_guardian_json AS
@@ -1428,26 +1486,12 @@ CREATE OR REPLACE VIEW yacare.v_legal_guardian_json AS
 	FROM	yacare.v_person_json AS person
 	LEFT JOIN yacare.v_education_level_type_json education_level_type
 		ON person.education_level_type_id = education_level_type.id
-	WHERE	(
-			SELECT 	COUNT(*) 
-			FROM 	yacare.family_relationship fr
-				JOIN	yacare.physical_person_family_relationship_list ppfrl
-					ON 	ppfrl.family_relationship_id = fr.id
-					JOIN 	yacare.physical_person pp_child	
-						ON 	ppfrl.physical_person_id = pp_child.id
-						AND	pp_child.state_enable = true
-						JOIN yacare.student s
-							ON 	s.physical_person_id = pp_child.id
-							AND 	s.state_enable = true
-							-- falta condicionar por el estdo, que no sea egresado
-			WHERE	fr.physical_person_id = person.id
-				AND 	fr.legal_responsibility = true
-				AND 	fr.state_enable = true	
-		) > 0;	
+	WHERE	yacare.f_legal_guardian_check(person.id) = true;	
 
 
 
 -- SELECT * FROM yacare.v_legal_guardian_json LIMIT 100;
+
 
 ------------------------------------------------------------------------------------------------------------------------------
 
@@ -1781,8 +1825,7 @@ FROM	(
 					|| yacare.ja('familyRelationshipType', rt.json, false, false, false)			
 					|| yacare.ja('educationLevel', el.json, false, false, false)			
 				|| '}'
-			)::VARCHAR AS json	
-				
+			)::VARCHAR AS json					
 			
 		FROM 	yacare.family_relationship r
 		JOIN 	yacare.physical_person tutor
@@ -1901,6 +1944,80 @@ CREATE OR REPLACE FUNCTION yacare.f_student_by_person_id(person_id character var
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
 -- SELECT * FROM yacare.f_student_by_person_id('ff80818144e5b96d0144e5b9f28e00a0');
+
+
+-- =============================================================================================================================
+--							USER
+-- =============================================================================================================================
+
+-- ____________________________________________________ LEGAL GUARDIAN USER  _________________________________________________________________
+
+
+
+DROP VIEW IF EXISTS yacare.v_legal_guardian_user_json CASCADE; 
+
+CREATE OR REPLACE VIEW yacare.v_legal_guardian_user_json AS
+
+	SELECT	u.id AS legal_guardian_user_id,
+		person.id AS person_id,
+		person.identification_number AS user_name,
+		u.erased,		
+		('{'
+		------------------------------------------------------------------------------------------------
+			|| yacare.ja('idxx', person.id, true)
+			|| yacare.ja('personalInformation', person.json, false, true, false)
+			|| yacare.ja('erased', u.erased)
+			|| yacare.ja('userName', LOWER(TRIM(person.identification_number)))
+			|| yacare.ja('password', TRIM(u.password))			
+		------------------------------------------------------------------------------------------------
+		|| '}')::VARCHAR AS json	
+	FROM	yacare.legal_guardian_user u
+	JOIN	yacare.v_person_json AS person
+		ON u.physical_person_id = person.id	
+	WHERE	yacare.f_legal_guardian_check(person.id) = true;
+
+-- SELECT * FROM yacare.v_legal_guardian_user_json LIMIT 100;
+
+------------------------------------------------------------------------------------------------------------------------------
+
+DROP FUNCTION IF EXISTS yacare.f_legal_guardian_users(offsetArg INTEGER, limitArg INTEGER) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_legal_guardian_users(offsetArg INTEGER, limitArg INTEGER) RETURNS SETOF character varying AS $BODY$
+
+SELECT 	COALESCE('[ ' || string_agg(t.json,', ' ) || ']', 'null')	
+FROM	(
+
+
+	SELECT 	legal_guardian.json::VARCHAR 
+	FROM 	yacare.v_legal_guardian_user_json AS legal_guardian	
+	OFFSET 	$1
+	LIMIT	$2	
+) AS t
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_legal_guardian_users(0, 100);
+
+------------------------------------------------------------------------------------------------------------------------------
+
+DROP FUNCTION IF EXISTS yacare.f_legal_guardian_users_by_user_name(user_name_arg character varying) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_legal_guardian_users_by_user_name(user_name_arg character varying) RETURNS SETOF character varying AS $BODY$
+
+	SELECT 	legal_guardian.json::VARCHAR 
+	FROM 	yacare.v_legal_guardian_user_json AS legal_guardian 
+	WHERE 	LOWER(TRIM(legal_guardian.user_name)) = LOWER(TRIM($1))
+		
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_legal_guardian_users_by_user_name('13567967');
+
+
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
 
 -- =============================================================================================================================
 -- =============================================================================================================================

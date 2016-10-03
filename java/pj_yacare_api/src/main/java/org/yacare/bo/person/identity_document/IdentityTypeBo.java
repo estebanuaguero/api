@@ -3,7 +3,7 @@ package org.yacare.bo.person.identity_document;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.utiljdbc.ConnectionWrapper;
+import org.cendra.commons.utiljdbc.ConnectionWrapper;
 import org.yacare.bo.AbstractBo;
 import org.yacare.model.person.identity_document.IdentityType;
 

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.yacare.Swagger2SpringBoot;
 import org.yacare.api.FamilyRelationshipTypesApi;
-import org.yacare.bo.FamilyRelationshipTypeBo;
+import org.yacare.bo.person.physical.FamilyRelationshipTypeBo;
 import org.yacare.model.academic.student.FamilyRelationshipType;
 
 @Controller

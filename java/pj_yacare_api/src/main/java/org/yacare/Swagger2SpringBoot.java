@@ -1,17 +1,19 @@
 package org.yacare;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.cendra.commons.utiljdbc.DataSourceWrapper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
-import org.utiljdbc.DataSourceWrapper;
-import org.utiljdbc.SO;
 
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
@@ -42,9 +44,9 @@ public class Swagger2SpringBoot implements CommandLineRunner {
 		}
 
 		init();
-		
-//		new Test().test2();
-//		new Test().test();
+
+		// new Test().test2();
+		// new Test().test();
 	}
 
 	class ExitException extends RuntimeException implements ExitCodeGenerator {
@@ -75,7 +77,7 @@ public class Swagger2SpringBoot implements CommandLineRunner {
 			System.out
 					.println("\n[==================================== START - CONTENIDO DEL ARCHIVO DE CONFIGURACION ===================================================]\n\n"
 
-							+ SO.readFilePlainText(urlFiles)
+							+ readFilePlainText(urlFiles)
 
 							+ "\n[====================================  END - CONTENIDO DEL ARCHIVO DE CONFIGURACION ===================================================]\n");
 
@@ -97,6 +99,44 @@ public class Swagger2SpringBoot implements CommandLineRunner {
 
 	public static DataSourceWrapper getDataSourceWrapper() {
 		return dataSourceWrapper;
+	}
+
+	private static String readFilePlainText(String path) {
+		path = path.replace('/', File.separatorChar);
+		String txt = "";
+		File archivo = null;
+		FileReader fr = null;
+		BufferedReader br = null;
+
+		try {
+			// Apertura del fichero y creacion de BufferedReader para poder
+			// hacer una lectura comoda (disponer del metodo readLine()).
+			archivo = new File(path);
+			fr = new FileReader(archivo);
+			br = new BufferedReader(fr);
+
+			// Lectura del fichero
+			String linea;
+			while ((linea = br.readLine()) != null)
+				txt += linea + "\n";
+			// System.out.println(linea);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			// En el finally cerramos el fichero, para asegurarnos
+			// que se cierra tanto si todo va bien como si salta
+			// una excepcion.
+			try {
+				if (null != fr) {
+					fr.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+
+		return txt;
 	}
 
 }

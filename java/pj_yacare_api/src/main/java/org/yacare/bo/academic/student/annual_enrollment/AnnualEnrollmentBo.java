@@ -3,7 +3,7 @@ package org.yacare.bo.academic.student.annual_enrollment;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.utiljdbc.ConnectionWrapper;
+import org.cendra.commons.utiljdbc.ConnectionWrapper;
 import org.yacare.bo.AbstractBo;
 import org.yacare.model.academic.student.annual_enrollment.AnnualEnrollment;
 
