@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiParam;
 
 import java.util.List;
 
-import org.cendra.commons.ex.GenericException;
+import org.cendra.commons.ex.AbstractGenericException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -76,7 +76,7 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 
-		} catch (GenericException e) {
+		} catch (AbstractGenericException e) {
 
 			ApiError apiError = new ApiError(e, this.getClass());
 
@@ -98,7 +98,7 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 			List<User> users = userBo.getLegalGuardianUsers(offset, limit);
 			return new ResponseEntity<List<User>>(users, HttpStatus.OK);
 
-		} catch (GenericException e) {
+		} catch (AbstractGenericException e) {
 
 			ApiError apiError = new ApiError(e, this.getClass());
 
@@ -120,7 +120,7 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 			user = userBo.createLegalGuardianUser(user);
 			return new ResponseEntity<User>(user, HttpStatus.CREATED);
 
-		} catch (GenericException e) {
+		} catch (AbstractGenericException e) {
 
 			ApiError apiError = new ApiError(e, this.getClass());
 

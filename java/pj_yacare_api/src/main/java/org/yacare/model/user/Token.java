@@ -96,7 +96,8 @@ public class Token {
 	 **/
 	@ApiModelProperty(value = "Fecha y hora en que se creó el token.")
 	public Timestamp getCreationDate() {
-		return creationDate;
+		return new Timestamp(System.currentTimeMillis());
+//		return creationDate;
 	}
 
 	public void setCreationDate(Timestamp creationDate) {

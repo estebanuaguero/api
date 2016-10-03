@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.cendra.commons.ex.GenericException;
+import org.cendra.commons.ex.AbstractGenericException;
 import org.cendra.commons.utiljdbc.ex.AbstractExceptionDbDao;
 import org.cendra.commons.utiljdbc.ex.ExFindJsonDao;
 
@@ -25,8 +25,8 @@ public class ErrorInfoDebugException {
 
 		simpleStackTrace.add(getFirstTrace(exception, clazz));
 
-		if (exception instanceof GenericException) {
-			GenericException genericException = (GenericException) exception;
+		if (exception instanceof AbstractGenericException) {
+			AbstractGenericException genericException = (AbstractGenericException) exception;
 
 			simpleStackTrace.add(getFirstTrace(genericException,
 					genericException.getThrowerClass()));
@@ -40,7 +40,7 @@ public class ErrorInfoDebugException {
 
 		}
 
-		throwerClass = clazz.toString();
+		throwerClass = getFirstTraceClass(exception, clazz); // clazz.toString();
 
 		cause = exception.getCause().toString();
 		nameException = exception.getClass().toString();
@@ -51,9 +51,9 @@ public class ErrorInfoDebugException {
 			stackTrace.add(st.toString());
 		}
 
-		if (exception instanceof GenericException) {
+		if (exception instanceof AbstractGenericException) {
 
-			GenericException genericException = (GenericException) exception;
+			AbstractGenericException genericException = (AbstractGenericException) exception;
 
 			for (int i = genericException.getStackException().size() - 1; i >= 0; i--) {
 
@@ -73,7 +73,22 @@ public class ErrorInfoDebugException {
 
 				String firstTrace = st.getClassName() + "."
 						+ st.getMethodName() + " (" + st.getFileName() + " "
-						+ ":" + st.getLineNumber() + ") " + e.getMessage();
+						+ ":" + st.getLineNumber() + ") " + e;
+				return firstTrace;
+			}
+		}
+
+		return null;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private String getFirstTraceClass(Exception e, Class T) {
+		for (StackTraceElement st : e.getStackTrace()) {
+			if (T.getName().equals(st.getClassName())) {
+
+				String firstTrace = st.getClassName() + "."
+						+ st.getMethodName() + " (" + st.getFileName() + " "
+						+ ":" + st.getLineNumber() + ")";
 				return firstTrace;
 			}
 		}
@@ -110,6 +125,8 @@ public class ErrorInfoDebugException {
 			if (genericExceptionDbDao instanceof ExFindJsonDao) {
 				ExFindJsonDao exFindJsonDao = (ExFindJsonDao) genericExceptionDbDao;
 
+				System.out.println(exFindJsonDao.getJson());
+				
 				debugDb.setJsonSource(exFindJsonDao.getJson());
 			}
 
@@ -117,9 +134,9 @@ public class ErrorInfoDebugException {
 
 			return;
 
-		} else if (exception instanceof GenericException) {
+		} else if (exception instanceof AbstractGenericException) {
 
-			GenericException genericException = (GenericException) exception;
+			AbstractGenericException genericException = (AbstractGenericException) exception;
 
 			debugDb(genericException.getThirdException());
 		}

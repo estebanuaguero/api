@@ -1,8 +1,8 @@
 package org.cendra.commons.utiljdbc.ex;
 
-import org.cendra.commons.ex.GenericException;
+import org.cendra.commons.ex.AbstractGenericException;
 
-abstract class AbstractExceptionDao extends GenericException {
+abstract class AbstractExceptionDao extends AbstractGenericException {
 
 	private static final long serialVersionUID = -3498262347742330970L;
 

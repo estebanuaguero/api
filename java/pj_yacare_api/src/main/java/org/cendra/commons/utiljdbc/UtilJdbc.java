@@ -353,6 +353,7 @@ public class UtilJdbc {
 			printSQLEnd();
 
 			ObjectMapper mapper = new ObjectMapper();
+			mapper.setDateFormat(myDateFormat);
 
 			while (resultSet.next()) {
 

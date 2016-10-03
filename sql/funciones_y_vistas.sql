@@ -1126,7 +1126,8 @@ CREATE OR REPLACE VIEW yacare.v_person_json AS
 		person.identification_number,
 		person.file_number, 		
 		person.comment, 		
-		person.education_level_type_id,		
+		person.education_level_type_id,	
+		person.main_email,	
 		('{'
 		------------------------------------------------------------------------------------------------
 			|| yacare.ja('id', person.id, true)
@@ -1195,7 +1196,7 @@ CREATE OR REPLACE VIEW yacare.v_person_json AS
 								
 				|| '}'
 				|| ', "emails":{'	
-					|| yacare.ja('mainEmail', COALESCE(person.main_email, 'null')::VARCHAR, false, true)	
+					|| COALESCE(yacare.ja('mainEmail', person.main_email, true), '"mainEmail":null')::VARCHAR	
 					|| yacare.ja('alternativeEmails', 
 						(
 							/*
@@ -1950,6 +1951,32 @@ $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 --							USER
 -- =============================================================================================================================
 
+-- ____________________________________________________ TOKEN  _________________________________________________________________
+
+DROP VIEW IF EXISTS yacare.v_token_json CASCADE; 
+
+CREATE OR REPLACE VIEW yacare.v_token_json AS
+
+	SELECT 	token.*,		
+		(
+		'{'
+			|| yacare.ja('id', TRIM(token.id), true)
+			|| yacare.ja('erased', token.erased)
+			--|| yacare.ja('creationDate', token.creation_date)	
+			--|| yacare.ja('creationDate', '2016-10-03 17:59:54.57')	
+			|| yacare.ja('creationDate', '2016-10-03 17:59:54')	
+			--|| yacare.ja('creationDate', '2016-10-03')	
+								
+		|| '}'
+		)::VARCHAR AS json
+	FROM 	yacare.legal_guardian_user_token AS token;	
+
+-- SELECT * FROM yacare.v_token_json;
+
+
+
+
+
 -- ____________________________________________________ LEGAL GUARDIAN USER  _________________________________________________________________
 
 
@@ -1964,19 +1991,67 @@ CREATE OR REPLACE VIEW yacare.v_legal_guardian_user_json AS
 		u.erased,		
 		('{'
 		------------------------------------------------------------------------------------------------
-			|| yacare.ja('idxx', person.id, true)
-			|| yacare.ja('personalInformation', person.json, false, true, false)
+			|| yacare.ja('id', person.id, true)
+		--	|| yacare.ja('personalInformation', person.json, false, false, false)
 			|| yacare.ja('erased', u.erased)
-			|| yacare.ja('userName', LOWER(TRIM(person.identification_number)))
+			|| yacare.ja('userName', LOWER(TRIM(person.identification_number))::VARCHAR)
 			|| yacare.ja('password', TRIM(u.password))			
+			|| yacare.ja('mainEmail', person.main_email)
+
+			|| ', "personalInformation":{'
+			------------------------------------------------------------------------------------------------
+				|| yacare.ja('id', person.id, true)
+				|| yacare.ja('erased', person.erased)
+				|| yacare.ja('givenNames', person.names, false, false)
+				|| yacare.ja('surnames', person.last_names, false, false)								
+
+				|| ', "identityDocuments":{'
+					|| '"mainIdentity":{'
+						|| yacare.ja('identityNumber', COALESCE(person.identification_number, ''), true)
+						|| yacare.ja('identityType', identity_type.json, false, false, false)
+					|| '}'								
+					|| COALESCE(', "identities":[' 
+						|| '{'
+							|| yacare.ja('identityNumber', person.cuil_cuit, true)
+							|| yacare.ja('identityType', identity_type_cuil.json, false, false, false)
+						|| '}'		
+					|| ']', '')			
+				|| '}'
+				|| ', "communicationOptions":{'					
+					|| '"emails":{'	
+						|| COALESCE(yacare.ja('mainEmail', person.main_email, true), '"mainEmail":null')::VARCHAR						
+					|| '}'
+					
+				|| '}'
+			|| '}'
+
+
+			|| yacare.ja('tokens', 
+				(
+					SELECT 	COALESCE('[ ' || string_agg(tokens.json,', ' ORDER BY tokens.creation_date) || ']', 'null')
+					FROM	yacare.v_token_json tokens  
+					WHERE 	u.id = tokens.legal_guardian_user_id	
+					
+				)::VARCHAR
+				, false, false)		
+				
+			------------------------------------------------------------------------------------------------
+			|| '}'				
 		------------------------------------------------------------------------------------------------
 		|| '}')::VARCHAR AS json	
 	FROM	yacare.legal_guardian_user u
-	JOIN	yacare.v_person_json AS person
-		ON u.physical_person_id = person.id	
+	--JOIN	yacare.v_person_json AS person
+	JOIN	yacare.v_person AS person
+		ON person.id = u.physical_person_id	
+		LEFT JOIN yacare.v_identity_type_json identity_type
+			ON person.identification_type_person_id = identity_type.id	
+		LEFT JOIN yacare.v_identity_type_json identity_type_cuil
+			ON person.cuil_cuit IS NOT NULL
+			AND identity_type_cuil.code = 'ARG_CUIL'	
 	WHERE	yacare.f_legal_guardian_check(person.id) = true;
 
 -- SELECT * FROM yacare.v_legal_guardian_user_json LIMIT 100;
+-- SELECT * FROM yacare.legal_guardian_user u LIMIT 100;
 
 ------------------------------------------------------------------------------------------------------------------------------
 

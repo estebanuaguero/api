@@ -1,10 +1,8 @@
-package org.cendra.commons.utiljdbc.ex;
-
-import org.cendra.commons.ex.AbstractBussinessException;
+package org.cendra.commons.ex;
 
 public class ExUnexpectedResult extends AbstractBussinessException {
 
-	private static final long serialVersionUID = -4434047353851242707L;
+	private static final long serialVersionUID = 8971469913696187213L;
 
 	@SuppressWarnings("rawtypes")
 	public ExUnexpectedResult(Class throwerClass, String message) {

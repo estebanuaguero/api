@@ -25,12 +25,13 @@ public interface LegalGuardianUsersApi {
 	public static String notes = "Usuarios que son tutores. Tutor o Responsable Legal de Estudiantes, también llamados tutores legales, o padres.";
 	public static String produces = "application/json";
 
-	public static final String msg404 = "Usuario no encontrado";
-	public static final String msg422 = "Id de usuario inválido";
+	public static final String msg404 = "Objeto no encontrado";
+	public static final String msg422 = "Argumento inválido";
 	public static final String msg500 = "Error interno del servidor";
 
 	public static final String msg201 = "Usuario creado";
-	public static final String msg400 = "Campos incorrectos";
+	// public static final String msg400 = "Campos incorrectos";
+	public static final String msg409 = "Error de negocio";
 
 	// ---------------------------------------------------------------------------------------
 
@@ -90,9 +91,9 @@ public interface LegalGuardianUsersApi {
 	@ApiOperation(value = endPointTitle_3, notes = notes, response = User.class, tags = { tagName })
 	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = msg201, response = User.class),
-			@ApiResponse(code = 400, message = msg400, response = ApiError.class),
+			@ApiResponse(code = 404, message = msg404, response = ApiError.class),
+			@ApiResponse(code = 409, message = msg409, response = ApiError.class),
 			@ApiResponse(code = 422, message = msg422, response = ApiError.class),
-			@ApiResponse(code = 409, message = msg404, response = ApiError.class),
 			@ApiResponse(code = 500, message = msg500, response = ApiError.class) })
 	@RequestMapping(value = endPointUrl_3, produces = { produces }, method = RequestMethod.POST)
 	ResponseEntity<User> createLegalGuardianUser(

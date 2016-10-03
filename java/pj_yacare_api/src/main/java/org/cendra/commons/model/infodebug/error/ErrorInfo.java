@@ -1,6 +1,6 @@
 package org.cendra.commons.model.infodebug.error;
 
-import org.cendra.commons.ex.GenericException;
+import org.cendra.commons.ex.AbstractGenericException;
 import org.cendra.commons.model.infodebug.error.debug.ErrorInfoDebug;
 
 public class ErrorInfo {
@@ -16,9 +16,9 @@ public class ErrorInfo {
 
 		infoDebug = new ErrorInfoDebug(exception, clazz);
 
-		if (exception instanceof GenericException) {
+		if (exception instanceof AbstractGenericException) {
 
-			GenericException genericException = (GenericException) exception;
+			AbstractGenericException genericException = (AbstractGenericException) exception;
 
 			subject = genericException.getSubject();
 			code = genericException.getCode();

@@ -3,6 +3,9 @@ package org.yacare.model.user;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.yacare.model.person.physical.Person;
 
 /**
@@ -13,10 +16,11 @@ public class User {
 
 	private String id = null;
 	private Boolean erased = null;
-	private Person personalInformation = null;
 	private String userName;
 	private String password;
-	private String mainEmail;
+	private String mainEmail;	
+	private Person personalInformation = null;
+	private List<Token> tokens = new ArrayList<Token>();
 
 	// -----------------------------------------------------
 	// --- id
@@ -154,6 +158,14 @@ public class User {
 
 	public void setMainEmail(String mainEmail) {
 		this.mainEmail = mainEmail;
+	}
+
+	public List<Token> getTokens() {
+		return tokens;
+	}
+
+	public void setTokens(List<Token> tokens) {
+		this.tokens = tokens;
 	}
 
 }

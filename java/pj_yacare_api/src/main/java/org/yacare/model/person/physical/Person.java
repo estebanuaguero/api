@@ -26,7 +26,7 @@ public class Person {
 	private PersonBirth birth = null;
 	private Nationalities nationalities = null;
 	private IdentityDocuments identityDocuments = null;
-	private CommunicationOptions communicationOptions = null;
+	private CommunicationOptions communicationOptions = new CommunicationOptions();
 	private PersonHealthData healthData = null;
 
 	public Person id(String id) {

@@ -8,8 +8,9 @@ import org.cendra.commons.ex.BussinessException;
 import org.cendra.commons.ex.BussinessIllegalArgumentException;
 import org.cendra.commons.ex.BussinessNotFoundException;
 import org.cendra.commons.ex.ErrorBussinessException;
+import org.cendra.commons.ex.ExNotFound;
+import org.cendra.commons.ex.ExUnexpectedResult;
 import org.cendra.commons.utiljdbc.ConnectionWrapper;
-import org.cendra.commons.utiljdbc.ex.ExUnexpectedResult;
 import org.yacare.bo.AbstractBo;
 import org.yacare.bo.person.physical.UtilPerson;
 import org.yacare.model.user.Token;
@@ -188,10 +189,10 @@ public class UserBo extends AbstractBo {
 					if (r == 0) {
 						throw new ExUnexpectedResult(this.getClass(),
 								"No se pudo crear el usuario con nombre "
-										+ user.getUserName() + ").");
+										+ user.getUserName() + ".");
 					}
 
-					sql = "INSERT INTO yacare.legal_guardian_user_token(id, legal_guardian_user_id) VALUES (?, ?, ?);";
+					sql = "INSERT INTO yacare.legal_guardian_user_token(id, legal_guardian_user_id) VALUES (?, ?);";
 
 					Token token = new Token();
 					token.setId(UUID.randomUUID().toString());
@@ -203,24 +204,24 @@ public class UserBo extends AbstractBo {
 						throw new ExUnexpectedResult(this.getClass(),
 								"No se pudo crear el usuario con nombre "
 										+ user.getUserName()
-										+ "). No se pudo crear su token. ");
+										+ ". No se pudo crear su token. ");
 					}
 
 					// mandar el mail
 
 				} else {
 
-					throw new ExUnexpectedResult(this.getClass(),
+					throw new ExNotFound(this.getClass(),
 							"No se pudo crear el usuario con nombre "
 									+ user.getUserName()
-									+ "). El tutor no existe.");
+									+ ". El tutor no existe.");
 				}
 
 			} else {
 				throw new BussinessException(this.getClass(),
 						"No se pudo crear el usuario con nombre "
 								+ user.getUserName()
-								+ "). El usuario ya existe.");
+								+ ". El usuario ya existe.");
 			}
 
 			user = utilGetLegalGuardianUsersByUserName(user.getUserName(),

@@ -4,14 +4,14 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class GenericException extends RuntimeException {
+public abstract class AbstractGenericException extends RuntimeException {
 
 	private static final long serialVersionUID = 6937809516512058437L;
 
 	protected int code = 500;
 	private String layer = "unknown";
 	private String subject = "unknown";
-	private String message = "";
+	protected String message = "";
 	private Timestamp time;
 
 	@SuppressWarnings("rawtypes")
@@ -28,7 +28,7 @@ public abstract class GenericException extends RuntimeException {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public GenericException(String layer, String subject, Class throwerClass,
+	public AbstractGenericException(String layer, String subject, Class throwerClass,
 			String message, Exception thirdException) {
 
 		time = new Timestamp(System.currentTimeMillis());
@@ -50,11 +50,11 @@ public abstract class GenericException extends RuntimeException {
 
 			this.stackException.add(thirdException);
 
-			if (thirdException instanceof GenericException) {
+			if (thirdException instanceof AbstractGenericException) {
 
-				GenericException genericException = (GenericException) thirdException;
+				AbstractGenericException genericException = (AbstractGenericException) thirdException;
 
-				this.stackThrowerClass.add(((GenericException) thirdException)
+				this.stackThrowerClass.add(((AbstractGenericException) thirdException)
 						.getThrowerClass());
 
 				stackException(genericException.getThirdException());

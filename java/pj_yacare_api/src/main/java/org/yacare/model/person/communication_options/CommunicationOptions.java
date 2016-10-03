@@ -16,9 +16,9 @@ import org.yacare.model.person.communication_options.phone.Phones;
 @ApiModel(description = "Opciones para comunicarse, como domicilio, teléfonos, correos electrónicos, etc.")
 public class CommunicationOptions {
 	
-	private Addresses addresses = null;
-	private Emails emails = null;
-	private Phones phones = null;
+	private Addresses addresses = new Addresses();
+	private Emails emails = new Emails();
+	private Phones phones = new Phones();
 	private String comment = null;
 
 	public CommunicationOptions addresses(Addresses addresses) {

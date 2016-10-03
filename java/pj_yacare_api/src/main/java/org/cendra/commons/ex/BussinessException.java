@@ -1,6 +1,6 @@
 package org.cendra.commons.ex;
 
-public class BussinessException extends GenericBussinessException {
+public class BussinessException extends AbstractBussinessException {
 
 	private static final long serialVersionUID = -3676488775228724330L;
 
