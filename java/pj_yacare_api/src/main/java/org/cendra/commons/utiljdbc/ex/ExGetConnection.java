@@ -2,7 +2,7 @@ package org.cendra.commons.utiljdbc.ex;
 
 import org.cendra.commons.utiljdbc.ConnectionWrapper;
 
-public class ExGetConnection extends GenericExceptionDbDao {
+public class ExGetConnection extends AbstractExceptionDbDao {
 
 	private static final long serialVersionUID = -2102866873730658179L;
 
@@ -10,10 +10,9 @@ public class ExGetConnection extends GenericExceptionDbDao {
 	public ExGetConnection(Class throwerClass, Exception thirdException,
 			ConnectionWrapper connectionWrapper) {
 
-		super(throwerClass, thirdException, connectionWrapper);
-
-		super.title = "Comienzo de Conexión";
-		super.message = "Error al intentar iniciar una conexión.";
+		super("Comienzo de Conexión", throwerClass,
+				"Error al intentar iniciar una conexión.", thirdException,
+				connectionWrapper, "GET_CONNECT");
 
 	}
 

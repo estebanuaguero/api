@@ -2,7 +2,7 @@ package org.cendra.commons.utiljdbc.ex;
 
 import org.cendra.commons.utiljdbc.ConnectionWrapper;
 
-class ExUpdateDao extends GenericExceptionDbUpdateDao {
+class ExUpdateDao extends AbstractExceptionDbDao {
 
 	private static final long serialVersionUID = 5211806463927374148L;
 
@@ -10,10 +10,9 @@ class ExUpdateDao extends GenericExceptionDbUpdateDao {
 	public ExUpdateDao(Class throwerClass, Exception thirdException,
 			ConnectionWrapper connectionWrapper) {
 
-		super(throwerClass, thirdException, connectionWrapper);
-
-		super.title = "Actualizando un Registro";
-		super.message = "Error al intentar actualizar un registro.";
+		super("Actualizando un Registro", throwerClass,
+				"Error al intentar actualizar un registro.", thirdException,
+				connectionWrapper, "UPDATE");
 
 	}
 

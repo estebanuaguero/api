@@ -14,7 +14,7 @@ public class ErrorInfoDebugDb {
 	private String jDBCMajorVersion = "unknown";
 	private String jDBCMinorVersion = "unknown";
 	private String jsonSource = "unknown";
-	private List<String> sql;
+	private List<String> stackStm;
 
 	public String getOperationType() {
 		return operationType;
@@ -96,12 +96,12 @@ public class ErrorInfoDebugDb {
 		this.jsonSource = jsonSource;
 	}
 
-	public List<String> getSql() {
-		return sql;
+	public List<String> getStackStm() {
+		return stackStm;
 	}
 
-	public void setSql(List<String> sql) {
-		this.sql = sql;
+	public void setStackStm(List<String> stackStm) {
+		this.stackStm = stackStm;
 	}
 
 }

@@ -17,10 +17,10 @@ public class ErrorInfo {
 		infoDebug = new ErrorInfoDebug(exception, clazz);
 
 		if (exception instanceof GenericException) {
-			
+
 			GenericException genericException = (GenericException) exception;
-			
-			subject = genericException.getTitle();
+
+			subject = genericException.getSubject();
 			code = genericException.getCode();
 		}
 

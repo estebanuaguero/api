@@ -1,42 +1,91 @@
 package org.cendra.commons.model.infodebug.error.debug;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.cendra.commons.ex.GenericException;
+import org.cendra.commons.utiljdbc.ex.AbstractExceptionDbDao;
 import org.cendra.commons.utiljdbc.ex.ExFindJsonDao;
-import org.cendra.commons.utiljdbc.ex.GenericExceptionDbDao;
 
 public class ErrorInfoDebugException {
 
-	// public String getJavaIoTmpDir() {
-	// return System.getProperty("java.io.tmpdir");
-	// }
-	//
-	// public void setJavaIoTmpDir(String javaIoTmpDir) {
-	// // this.javaIoTmpDir = javaIoTmpDir;
-	// }
-
-	// /** Default temp file path */
-	// @SuppressWarnings("unused")
-	// private String javaIoTmpDir = "unknown";
-
+	private String dateException = "unknown";
 	private String nameException = "unknown";
 	private String throwerClass = "unknown";
-	private String layer = "unknown";
-	private ErrorInfoDebugDb debugDb;
-
-	private String firstTrace = "unknown";
 	private String cause = "unknown";
+	private ErrorInfoDebugDb debugDb;
+	private List<String> simpleStackTrace = new ArrayList<String>();
 	private List<String> stackTrace;
-	private List<String> stackTraceThirdException;
 
 	@SuppressWarnings("rawtypes")
 	public ErrorInfoDebugException(Exception exception, Class clazz) {
 
-		if (exception instanceof GenericExceptionDbDao) {
+		debugDb(exception);
 
-			GenericExceptionDbDao genericExceptionDbDao = (GenericExceptionDbDao) exception;
+		simpleStackTrace.add(getFirstTrace(exception, clazz));
+
+		if (exception instanceof GenericException) {
+			GenericException genericException = (GenericException) exception;
+
+			simpleStackTrace.add(getFirstTrace(genericException,
+					genericException.getThrowerClass()));
+
+			dateException = genericException.getTime().toString();
+
+		} else {
+
+			dateException = new Timestamp(System.currentTimeMillis())
+					.toString();
+
+		}
+
+		throwerClass = clazz.toString();
+
+		cause = exception.getCause().toString();
+		nameException = exception.getClass().toString();
+
+		stackTrace = new ArrayList<String>();
+
+		for (StackTraceElement st : exception.getStackTrace()) {
+			stackTrace.add(st.toString());
+		}
+
+		if (exception instanceof GenericException) {
+
+			GenericException genericException = (GenericException) exception;
+
+			for (int i = genericException.getStackException().size() - 1; i >= 0; i--) {
+
+				Exception e = genericException.getStackException().get(i);
+				simpleStackTrace.add(getFirstTrace(e, genericException
+						.getStackthrowerClass().get(i)));
+			}
+
+		}
+
+	}
+
+	@SuppressWarnings("rawtypes")
+	private String getFirstTrace(Exception e, Class T) {
+		for (StackTraceElement st : e.getStackTrace()) {
+			if (T.getName().equals(st.getClassName())) {
+
+				String firstTrace = st.getClassName() + "."
+						+ st.getMethodName() + " (" + st.getFileName() + " "
+						+ ":" + st.getLineNumber() + ") " + e.getMessage();
+				return firstTrace;
+			}
+		}
+
+		return null;
+	}
+
+	private void debugDb(Exception exception) {
+
+		if (exception instanceof AbstractExceptionDbDao) {
+
+			AbstractExceptionDbDao genericExceptionDbDao = (AbstractExceptionDbDao) exception;
 
 			debugDb = new ErrorInfoDebugDb();
 
@@ -64,73 +113,28 @@ public class ErrorInfoDebugException {
 				debugDb.setJsonSource(exFindJsonDao.getJson());
 			}
 
-			debugDb.setSql(genericExceptionDbDao.getSqlList());
-		}
+			debugDb.setStackStm(genericExceptionDbDao.getSqlList());
 
-		if (exception instanceof GenericException) {
+			return;
+
+		} else if (exception instanceof GenericException) {
+
 			GenericException genericException = (GenericException) exception;
 
-			nameException = genericException.getName();
-			if (genericException.getThrowerClass() != null) {
-				throwerClass = genericException.getThrowerClass().toString();
-			}
-
-			if (genericException.getLayer() == null
-					&& genericException.getThirdException() != null) {
-				if (genericException.getThirdException() != null) {
-					layer = genericException.getThirdException().toString();
-				}
-			} else {
-				layer = genericException.getLayer();
-			}
-
-			firstTrace = genericException.getFirstTrace();
-
-			if (genericException.getThirdException() != null) {
-				cause = genericException.getThirdException().toString();
-			}
-
-			if (genericException.getThirdException() != null) {
-				stackTraceThirdException = new ArrayList<String>();
-
-				for (StackTraceElement st : genericException
-						.getThirdException().getStackTrace()) {
-					stackTraceThirdException.add(st.toString());
-				}
-			}
-
-		} else {
-
-			throwerClass = clazz.toString();
-
-			for (StackTraceElement st : exception.getStackTrace()) {
-
-				if (clazz.getName().equals(st.getClassName())) {
-
-					this.firstTrace = "(" + st.getClassName() + "."
-							+ st.getMethodName() + ")" + " ("
-							+ st.getFileName() + " " + "Linea: "
-							+ st.getLineNumber() + ") "
-							+ exception.getMessage();
-
-					break;
-
-				}
-			}
-
-			cause = exception.toString();
+			debugDb(genericException.getThirdException());
 		}
+	}
 
-		stackTrace = new ArrayList<String>();
+	public String getDateException() {
+		return dateException;
+	}
 
-		for (StackTraceElement st : exception.getStackTrace()) {
-			stackTrace.add(st.toString());
-		}
-
+	public void setDateException(String dateException) {
+		this.dateException = dateException;
 	}
 
 	public String getNameException() {
-		return nameException.getClass().getCanonicalName();
+		return nameException;
 	}
 
 	public void setNameException(String nameException) {
@@ -146,29 +150,12 @@ public class ErrorInfoDebugException {
 		this.throwerClass = throwerClass;
 	}
 
-	public String getLayer() {
-		return layer;
-	}
-
-	public void setLayer(String layer) {
-		this.layer = layer;
-	}
-
 	public ErrorInfoDebugDb getDebugDb() {
 		return debugDb;
 	}
 
 	public void setDebugDb(ErrorInfoDebugDb debugDb) {
 		this.debugDb = debugDb;
-	}
-
-	public String getFirstTrace() {
-
-		return firstTrace;
-	}
-
-	public void setFirstTrace(String firstTrace) {
-		this.firstTrace = firstTrace;
 	}
 
 	public String getCause() {
@@ -189,14 +176,12 @@ public class ErrorInfoDebugException {
 		this.stackTrace = stackTrace;
 	}
 
-	public List<String> getStackTraceThirdException() {
-
-		return stackTraceThirdException;
+	public List<String> getSimpleStackTrace() {
+		return simpleStackTrace;
 	}
 
-	public void setStackTraceThirdException(
-			List<String> stackTraceThirdException) {
-		this.stackTraceThirdException = stackTraceThirdException;
+	public void setSimpleStackTrace(List<String> simpleStackTrace) {
+		this.simpleStackTrace = simpleStackTrace;
 	}
 
 }

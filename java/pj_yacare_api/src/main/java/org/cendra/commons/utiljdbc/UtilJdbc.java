@@ -17,9 +17,6 @@ import org.cendra.commons.utiljdbc.ex.ExUnexpectedResult;
 import org.cendra.commons.utiljdbc.ex.ExUpdateInsertDao;
 import org.codehaus.jackson.map.ObjectMapper;
 
-//import com.thoughtworks.xstream.XStream;
-//import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
-
 public class UtilJdbc {
 
 	private boolean verbose = false;
@@ -59,9 +56,10 @@ public class UtilJdbc {
 			return executeUpdateByExample(preparedStatement);
 
 		} catch (Exception e) {
-			ExUpdateInsertDao ex = new ExUpdateInsertDao(this.getClass(), e, connectionWrapper);
+			ExUpdateInsertDao ex = new ExUpdateInsertDao(this.getClass(), e,
+					connectionWrapper);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -93,7 +91,7 @@ public class UtilJdbc {
 		} catch (Exception e) {
 			ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -121,7 +119,7 @@ public class UtilJdbc {
 
 		ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-		ex.setFirstTrace(e, this.getClass());
+//		ex.setFirstTrace(e, this.getClass());
 
 		throw ex;
 
@@ -147,7 +145,7 @@ public class UtilJdbc {
 
 		ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-		ex.setFirstTrace(e, this.getClass());
+//		ex.setFirstTrace(e, this.getClass());
 
 		throw ex;
 
@@ -182,7 +180,7 @@ public class UtilJdbc {
 		} catch (Exception e) {
 			ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -218,7 +216,7 @@ public class UtilJdbc {
 		} catch (Exception e) {
 			ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -252,7 +250,7 @@ public class UtilJdbc {
 		} catch (Exception e) {
 			ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -330,7 +328,7 @@ public class UtilJdbc {
 		} catch (Exception e) {
 			ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -384,7 +382,7 @@ public class UtilJdbc {
 			ExFindJsonDao ex = new ExFindJsonDao(this.getClass(), e,
 					connectionWrapper, json);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 
@@ -439,7 +437,7 @@ public class UtilJdbc {
 			ExFindJsonDao ex = new ExFindJsonDao(this.getClass(), e,
 					connectionWrapper, json);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 

@@ -2,7 +2,7 @@ package org.cendra.commons.utiljdbc.ex;
 
 import org.cendra.commons.utiljdbc.ConnectionWrapper;
 
-public class ExCloseConnection extends GenericExceptionDbDao {
+public class ExCloseConnection extends AbstractExceptionDbDao {
 
 	private static final long serialVersionUID = -8151654714014791263L;
 
@@ -10,10 +10,9 @@ public class ExCloseConnection extends GenericExceptionDbDao {
 	public ExCloseConnection(Class throwerClass, Exception thirdException,
 			ConnectionWrapper connectionWrapper) {
 
-		super(throwerClass, thirdException, connectionWrapper);
-
-		super.title = "Cierre de Conexión";
-		super.message = "Error al intentar cerrar una conexión.";
+		super("Cierre de Conexión", throwerClass,
+				"Error al intentar cerrar una conexión.", thirdException,
+				connectionWrapper, "END_CONNECT");
 
 	}
 

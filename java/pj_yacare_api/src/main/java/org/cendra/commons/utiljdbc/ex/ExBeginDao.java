@@ -2,9 +2,7 @@ package org.cendra.commons.utiljdbc.ex;
 
 import org.cendra.commons.utiljdbc.ConnectionWrapper;
 
-
-
-public class ExBeginDao extends GenericExceptionDbBeginDao {
+public class ExBeginDao extends AbstractExceptionDbDao {
 
 	private static final long serialVersionUID = 9189527380098903220L;
 
@@ -12,10 +10,9 @@ public class ExBeginDao extends GenericExceptionDbBeginDao {
 	public ExBeginDao(Class throwerClass, Exception thirdException,
 			ConnectionWrapper connectionWrapper) {
 
-		super(throwerClass, thirdException, connectionWrapper);
-
-		super.title = "Comienzo de Transacción";
-		super.message = "Error al intentar iniciar una transacción.";
+		super("Comienzo de Transacción", throwerClass,
+				"Error al intentar iniciar una transacción.", thirdException,
+				connectionWrapper, "TRANSACTION");
 
 	}
 

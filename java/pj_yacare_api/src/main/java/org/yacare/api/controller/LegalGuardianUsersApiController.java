@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiParam;
 
 import java.util.List;
 
-import org.cendra.commons.ex.GenericBussinessException;
 import org.cendra.commons.ex.GenericException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

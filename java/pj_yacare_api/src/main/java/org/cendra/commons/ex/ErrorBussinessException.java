@@ -2,12 +2,14 @@ package org.cendra.commons.ex;
 
 public class ErrorBussinessException extends GenericBussinessException {
 
-	private static final long serialVersionUID = 4544610784582607288L;
+	private static final long serialVersionUID = -4422237915414219200L;
 
 	@SuppressWarnings("rawtypes")
-	public ErrorBussinessException(Class throwerClass, Exception thirdException, String message) {
-		super(throwerClass, thirdException );	
-		super.message = message;
+	public ErrorBussinessException(Class throwerClass, String message,
+			Exception thirdException) {
+
+		super(throwerClass, message, thirdException);
+
 	}
 
 }

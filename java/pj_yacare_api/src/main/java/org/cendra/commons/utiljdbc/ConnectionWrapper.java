@@ -23,7 +23,6 @@ public class ConnectionWrapper {
 		this.dataSourceMetaData = dataSourceMetaData;
 		this.utilJdbc = new UtilJdbc();
 		utilJdbc.setVerbose(true);
-
 	}
 
 	public void setUtilJdbc(UtilJdbc utilJdbc) {
@@ -111,7 +110,7 @@ public class ConnectionWrapper {
 			ExCloseConnection ex2 = new ExCloseConnection(this.getClass(), e2,
 					connectionWrapper);
 
-			ex2.setFirstTrace(e2, this.getClass());
+//			ex2.setFirstTrace(e2, this.getClass());
 
 		}
 
@@ -126,7 +125,7 @@ public class ConnectionWrapper {
 			ExBeginDao ex = new ExBeginDao(this.getClass(), e,
 					connectionWrapper);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -141,7 +140,7 @@ public class ConnectionWrapper {
 
 			ExBeginDao ex = new ExBeginDao(this.getClass(), e, this);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -161,7 +160,7 @@ public class ConnectionWrapper {
 			ExCommitDao ex = new ExCommitDao(this.getClass(), e,
 					connectionWrapper);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -180,7 +179,7 @@ public class ConnectionWrapper {
 
 			ExCommitDao ex = new ExCommitDao(this.getClass(), e, this);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -200,7 +199,7 @@ public class ConnectionWrapper {
 			ExRollBackDao ex = new ExRollBackDao(this.getClass(), e,
 					connectionWrapper);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -219,7 +218,7 @@ public class ConnectionWrapper {
 
 			ExRollBackDao ex = new ExRollBackDao(this.getClass(), e, this);
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -230,14 +229,17 @@ public class ConnectionWrapper {
 		return utilJdbc.update(this, sql, args);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public List<Object> findToJsonArray(String sql, Class clazz, Object... args) {
 		return utilJdbc.findToJsonArray(this, sql, clazz, args);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object findToJsonByExample(String sql, Class clazz, Object... args) {
 		return utilJdbc.findToJsonByExample(this, sql, clazz, args);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object findToJsonById(String sql, Class clazz, String id) {
 		return utilJdbc.findToJsonById(this, sql, clazz, id);
 	}

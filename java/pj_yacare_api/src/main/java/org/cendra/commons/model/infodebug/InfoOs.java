@@ -1,5 +1,7 @@
 package org.cendra.commons.model.infodebug;
 
+import java.util.Locale;
+
 public class InfoOs {
 
 	/** Operating system name */
@@ -21,6 +23,9 @@ public class InfoOs {
 	/** Line separator ("\n" on UNIX) */
 	@SuppressWarnings("unused")
 	private String lineSeparator = "unknown";
+	
+	private String locale = "unknown";
+	private String encode = "unknown";
 	
 	private InfoUser user = new InfoUser();
 
@@ -78,6 +83,14 @@ public class InfoOs {
 
 	public void setUser(InfoUser user) {
 		this.user = user;
+	}
+
+	public String getLocale() {
+		return Locale.getDefault().toString();
+	}
+
+	public void setLocale(String locale) {
+//		this.locale = locale;
 	}
 
 }

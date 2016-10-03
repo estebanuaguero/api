@@ -73,12 +73,12 @@ public class DataSourceWrapper {
 				connection.close();
 			} catch (Exception e) {
 				ExMetaDataDbCloseConnection exMetaDataDbCloseConnection = new ExMetaDataDbCloseConnection(this.getClass(), e);
-				exMetaDataDbCloseConnection.setFirstTrace(e, this.getClass());
+//				exMetaDataDbCloseConnection.setFirstTrace(e, this.getClass());
 				throw exMetaDataDbCloseConnection;
 			}
 		} catch (Exception e) {			
 			ExMetaDataDbDao exMetaDataDb = new ExMetaDataDbDao(this.getClass(), e);
-			exMetaDataDb.setFirstTrace(e, this.getClass());
+//			exMetaDataDb.setFirstTrace(e, this.getClass());
 			throw exMetaDataDb;
 		}
 	}
@@ -140,7 +140,7 @@ public class DataSourceWrapper {
 			
 			ExGetConnection ex = new ExGetConnection(this.getClass(), e, new ConnectionWrapper(null, dataSourceMetaData));
 
-			ex.setFirstTrace(e, this.getClass());
+//			ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}

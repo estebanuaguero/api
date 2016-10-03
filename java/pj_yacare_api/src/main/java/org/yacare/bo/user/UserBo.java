@@ -8,7 +8,6 @@ import org.cendra.commons.ex.BussinessException;
 import org.cendra.commons.ex.BussinessIllegalArgumentException;
 import org.cendra.commons.ex.BussinessNotFoundException;
 import org.cendra.commons.ex.ErrorBussinessException;
-import org.cendra.commons.ex.GenericException;
 import org.cendra.commons.utiljdbc.ConnectionWrapper;
 import org.cendra.commons.utiljdbc.ex.ExUnexpectedResult;
 import org.yacare.bo.AbstractBo;
@@ -56,16 +55,11 @@ public class UserBo extends AbstractBo {
 
 			return users;
 
-		} catch (GenericException e) {
-
-			e.printStackTrace();
-			throw e;
-
 		} catch (Exception e) {
 
 			e.printStackTrace();
-			throw new ErrorBussinessException(this.getClass(), e,
-					"Error al tratar de obtener los usuarios.");
+			throw new ErrorBussinessException(this.getClass(),
+					"Error al tratar de obtener los usuarios.", e);
 		} finally {
 
 			if (connectionWrapper != null) {
@@ -85,7 +79,7 @@ public class UserBo extends AbstractBo {
 
 			User user = utilGetLegalGuardianUsersByUserName(userName,
 					connectionWrapper);
-			
+
 			if (user == null || user.getId() == null
 					|| user.getId().trim().length() == 0) {
 
@@ -98,17 +92,12 @@ public class UserBo extends AbstractBo {
 
 			return user;
 
-		} catch (GenericException e) {
-
-			e.printStackTrace();
-			throw e;
-
 		} catch (Exception e) {
 
 			e.printStackTrace();
-			throw new ErrorBussinessException(this.getClass(), e,
+			throw new ErrorBussinessException(this.getClass(),
 					"Error al tratar de obtener los datos del usuario "
-							+ userName);
+							+ userName, e);
 
 		} finally {
 
@@ -180,9 +169,10 @@ public class UserBo extends AbstractBo {
 
 					sql = "UPDATE yacare.physical_person SET main_email = LOWER(TRIM(?)) WHERE id = ?";
 
-					int r = connectionWrapper.update(sql, user.getMainEmail());
+					int r = connectionWrapper.update(sql, user.getMainEmail(),
+							personId);
 
-					if (r > 0) {
+					if (r != 1) {
 						throw new ExUnexpectedResult(this.getClass(),
 								"No se pudo actualizar el correo electrónico del tutor (usuario con nombre "
 										+ user.getUserName() + ").");
@@ -190,10 +180,10 @@ public class UserBo extends AbstractBo {
 
 					user.setId(personId);
 
-					sql = "INSERT INTO yacare.legal_guardian_user(id, erased, password, physical_person_id) VALUES (?, ?, ?, ?);";
+					sql = "INSERT INTO yacare.legal_guardian_user(id, password, physical_person_id) VALUES (?, ?, ?);";
 
 					r = connectionWrapper.update(sql, user.getId(),
-							user.getErased(), user.getPassword(), user.getId());
+							user.getPassword(), user.getId());
 
 					if (r == 0) {
 						throw new ExUnexpectedResult(this.getClass(),
@@ -215,6 +205,8 @@ public class UserBo extends AbstractBo {
 										+ user.getUserName()
 										+ "). No se pudo crear su token. ");
 					}
+
+					// mandar el mail
 
 				} else {
 
@@ -248,19 +240,13 @@ public class UserBo extends AbstractBo {
 
 			return user;
 
-		} catch (GenericException e) {
-
-			connectionWrapper.rollBack();
-			e.printStackTrace();
-			throw e;
-
 		} catch (Exception e) {
 
 			connectionWrapper.rollBack();
 			e.printStackTrace();
-			throw new ErrorBussinessException(this.getClass(), e,
+			throw new ErrorBussinessException(this.getClass(),
 					"No se pudo crear el usuario con nombre "
-							+ user.getUserName());
+							+ user.getUserName(), e);
 
 		} finally {
 			connectionWrapper.close(connectionWrapper);
