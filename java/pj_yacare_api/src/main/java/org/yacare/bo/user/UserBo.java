@@ -1,22 +1,58 @@
 package org.yacare.bo.user;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
 
+import javax.mail.internet.MimeMessage;
+
+import org.apache.commons.lang.CharEncoding;
+import org.cendra.commons.GeneralProperties;
 import org.cendra.commons.ex.BussinessException;
 import org.cendra.commons.ex.BussinessIllegalArgumentException;
+import org.cendra.commons.ex.BussinessNotAvailableException;
 import org.cendra.commons.ex.BussinessNotFoundException;
 import org.cendra.commons.ex.ErrorBussinessException;
 import org.cendra.commons.ex.ExNotFound;
 import org.cendra.commons.ex.ExUnexpectedResult;
 import org.cendra.commons.utiljdbc.ConnectionWrapper;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.yacare.bo.AbstractBo;
 import org.yacare.bo.person.physical.UtilPerson;
 import org.yacare.model.user.Token;
 import org.yacare.model.user.User;
+import org.yacare.model.user.UserAvaileability;
 
 public class UserBo extends AbstractBo {
+
+//	 {
+//	 "userName":"14292837",
+//	 "password":"123",
+//	 "mainEmail":"dmansilla@unc.edu.ar"
+//	 }
+
+	private MailSender mailSender;
+	private GeneralProperties generalProperties;
+
+	public MailSender getMailSender() {
+		return mailSender;
+	}
+
+	public void setMailSender(MailSender mailSender) {
+		this.mailSender = mailSender;
+	}
+
+	public GeneralProperties getGeneralProperties() {
+		return generalProperties;
+	}
+
+	public void setGeneralProperties(GeneralProperties generalProperties) {
+		this.generalProperties = generalProperties;
+	}
 
 	public List<User> getLegalGuardianUsers(Integer offset, Integer limit) {
 
@@ -63,9 +99,45 @@ public class UserBo extends AbstractBo {
 					"Error al tratar de obtener los usuarios.", e);
 		} finally {
 
-			if (connectionWrapper != null) {
-				connectionWrapper.close();
+			connectionWrapper.close(connectionWrapper);
+		}
+	}
+
+	public UserAvaileability userAvaileability(String userName) {
+
+		ConnectionWrapper connectionWrapper = null;
+
+		try {
+
+			connectionWrapper = this.getDataSourceWrapper()
+					.getConnectionWrapper();
+
+			UserAvaileability user = utilUserAvaileability(userName,
+					connectionWrapper);
+
+			if (user == null) {
+				throw new BussinessNotFoundException(this.getClass(),
+						"No se encontro el usuario con nombre " + userName);
+			} else if(user.getCheckEmail() == true){
+				throw new BussinessNotAvailableException(this.getClass(),
+						"No se encontro el usuario con nombre " + userName);
 			}
+
+			// --------------------------------------------------------------------------------------------------------
+
+			return user;
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			throw new ErrorBussinessException(this.getClass(),
+					"Error al tratar de obtener los datos del usuario "
+							+ userName, e);
+
+		} finally {
+
+			connectionWrapper.close(connectionWrapper);
+
 		}
 	}
 
@@ -85,7 +157,7 @@ public class UserBo extends AbstractBo {
 					|| user.getId().trim().length() == 0) {
 
 				throw new BussinessNotFoundException(this.getClass(),
-						"No se encontrol el usuario con nombre "
+						"No se encontro el usuario con nombre "
 								+ user.getUserName());
 			}
 
@@ -102,9 +174,7 @@ public class UserBo extends AbstractBo {
 
 		} finally {
 
-			if (connectionWrapper != null) {
-				connectionWrapper.close();
-			}
+			connectionWrapper.close(connectionWrapper);
 
 		}
 	}
@@ -207,7 +277,18 @@ public class UserBo extends AbstractBo {
 										+ ". No se pudo crear su token. ");
 					}
 
-					// mandar el mail
+					user = utilGetLegalGuardianUsersByUserName(
+							user.getUserName(), connectionWrapper);
+
+					if (user == null || user.getId() == null
+							|| user.getId().trim().length() == 0) {
+
+						throw new ExUnexpectedResult(this.getClass(),
+								"No se pudo crear el usuario con nombre "
+										+ user.getUserName());
+					}
+
+					sendEmail(user);
 
 				} else {
 
@@ -224,15 +305,131 @@ public class UserBo extends AbstractBo {
 								+ ". El usuario ya existe.");
 			}
 
-			user = utilGetLegalGuardianUsersByUserName(user.getUserName(),
-					connectionWrapper);
+			// --------------------------------------------------------------------------------------------------------
 
-			if (user == null || user.getId() == null
-					|| user.getId().trim().length() == 0) {
+			connectionWrapper.commit();
 
-				throw new ExUnexpectedResult(this.getClass(),
-						"No se pudo crear el usuario con nombre "
-								+ user.getUserName());
+			return user;
+
+		} catch (Exception e) {
+
+			connectionWrapper.rollBack();
+			e.printStackTrace();
+			throw new ErrorBussinessException(this.getClass(),
+					"No se pudo crear el usuario con nombre "
+							+ user.getUserName(), e);
+
+		} finally {
+			connectionWrapper.close(connectionWrapper);
+		}
+
+	}
+
+	public User updateLegalGuardianUser(User user) {
+
+		if (user == null) {
+			throw new BussinessIllegalArgumentException(this.getClass(),
+					"Se pretendió actualizar un usuario nulo, es decir un usuario sin datos.");
+		}
+
+		if (user.getId() == null || user.getId().trim().length() == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió actualizar un usuario con id nulo, es decir su identificador de usuario está vacio.");
+		}
+
+		if (user.getUserName() == null
+				|| user.getUserName().trim().length() == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió actualizar un usuario con nombre nulo, es decir su nombre de usuario está vacio.");
+		}
+
+		if (user.getPassword() == null
+				|| user.getPassword().trim().length() == 0) {
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió actualizar un usuario con contraseña nula, es decir su contraseña está vacia.");
+		}
+
+		if (user.getMainEmail() == null
+				|| user.getMainEmail().trim().length() == 0) {
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió actualizar un usuario con correo electrónico nulo, es decir su correo electrónico está vacio.");
+		}
+
+		ConnectionWrapper connectionWrapper = null;
+
+		try {
+
+			connectionWrapper = this.getDataSourceWrapper()
+					.getConnectionWrapper();
+
+			connectionWrapper.begin();
+
+			// --------------------------------------------------------------------------------------------------------
+
+			if (userExists(user, connectionWrapper)) {
+
+				String personId = user.getId();
+
+				String sql = "UPDATE yacare.physical_person SET main_email = LOWER(TRIM(?)) WHERE id = ?";
+
+				int r = connectionWrapper.update(sql, user.getMainEmail(),
+						personId);
+
+				if (r != 1) {
+					throw new ExUnexpectedResult(this.getClass(),
+							"No se pudo actualizar el correo electrónico del tutor (usuario con nombre "
+									+ user.getUserName() + ").");
+				}
+
+				sql = "UPDATE yacare.legal_guardian_user SET password = TRIM(?) WHERE id = ?;";
+
+				r = connectionWrapper.update(sql, user.getPassword(),
+						user.getId());
+
+				if (r == 0) {
+					throw new ExUnexpectedResult(this.getClass(),
+							"No se pudo actualizar el usuario con nombre "
+									+ user.getUserName() + ".");
+				}
+
+				sql = "INSERT INTO yacare.legal_guardian_user_token(id, legal_guardian_user_id) VALUES (?, ?);";
+
+				Token token = new Token();
+				token.setId(UUID.randomUUID().toString());
+
+				r = connectionWrapper.update(sql, token.getId(), user.getId());
+
+				if (r == 0) {
+					throw new ExUnexpectedResult(this.getClass(),
+							"No se pudo actualizar el usuario con nombre "
+									+ user.getUserName()
+									+ ". No se pudo crear su token. ");
+				}
+
+				user = utilGetLegalGuardianUsersByUserName(user.getUserName(),
+						connectionWrapper);
+
+				if (user == null || user.getId() == null
+						|| user.getId().trim().length() == 0) {
+
+					throw new ExUnexpectedResult(this.getClass(),
+							"No se pudo crear el usuario con nombre "
+									+ user.getUserName());
+				}
+
+				sendEmail(user);
+
+			} else {
+				throw new BussinessException(this.getClass(),
+						"No se pudo actualizar el usuario con nombre "
+								+ user.getUserName()
+								+ ". El usuario no existe.");
 			}
 
 			// --------------------------------------------------------------------------------------------------------
@@ -272,6 +469,18 @@ public class UserBo extends AbstractBo {
 				.length() > 0);
 	}
 
+	private UserAvaileability utilUserAvaileability(String userName,
+			ConnectionWrapper connectionWrapper) {
+
+		String sql = "SELECT * FROM yacare.f_legal_guardian_users_availeability_by_user_name(?);";
+
+		UserAvaileability user = (UserAvaileability) connectionWrapper
+				.findToJsonByExample(sql, UserAvaileability.class, userName);
+
+		return user;
+
+	}
+
 	private void completeData(User user, ConnectionWrapper connectionWrapper) {
 
 		if (user != null) {
@@ -305,4 +514,80 @@ public class UserBo extends AbstractBo {
 		return user;
 	}
 
+	private void sendEmail(User user) throws Exception {
+
+		String tokenValue = user.getTokens().get(user.getTokens().size() - 1)
+				.getTokenValue();
+
+		String name = "";
+		String lastName = "";
+
+		if (user.getPersonalInformation().getGivenNames() != null
+				&& user.getPersonalInformation().getGivenNames().size() > 0) {
+			name = user.getPersonalInformation().getGivenNames().get(0);
+		}
+
+		if (user.getPersonalInformation().getSurnames() != null
+				&& user.getPersonalInformation().getSurnames().size() > 0) {
+			lastName = user.getPersonalInformation().getSurnames().get(0);
+		}
+
+		String names = name + " " + lastName;
+		names = names.trim();
+
+		if (mailSender instanceof JavaMailSenderImpl) {
+
+			// JavaMailSenderImpl jmailSender = new JavaMailSenderImpl();
+			JavaMailSenderImpl jmailSender = (JavaMailSenderImpl) this.mailSender;
+
+			Properties properties = generalProperties.load();
+
+			jmailSender.setJavaMailProperties(properties);
+
+			MimeMessage mime = jmailSender.createMimeMessage();
+
+			// String subject = MimeUtility.encodeText(properties.get(
+			// "post.guardian_users.send.subject.email").toString(), "UTF-8",
+			// "Q");
+
+			mime.setHeader("Content-Type", "text/plain; charset=UTF-8");
+
+			mime.setSubject(
+					properties.get("post.guardian_users.send.subject.email")
+							.toString(), "UTF8");
+
+			// MimeMessageHelper helper = new MimeMessageHelper(mime, true,
+			// "UTF-8");
+			MimeMessageHelper helper = new MimeMessageHelper(mime, true,
+					CharEncoding.UTF_8);
+			helper.setFrom(properties.get("send.from.email").toString());
+			helper.setTo(user.getMainEmail());
+
+			// helper.setSubject(subject);
+
+			String htmlText = generalProperties
+					.readFilePlainText(generalProperties.getUrlFiles()
+							+ File.separatorChar
+							+ properties.get(
+									"post.guardian_users.send.body.email")
+									.toString());
+
+			htmlText = htmlText.replace("${names}", names);
+			htmlText = htmlText.replace("${userName}", user.getUserName());
+			htmlText = htmlText.replace("${token}", tokenValue);
+
+			helper.setText(htmlText, true);
+			helper.addAttachment(
+					"cnm.png",
+					new File(
+							generalProperties.getUrlFiles()
+									+ File.separatorChar
+									+ properties
+											.get("post.guardian_users.send.body.logo.email")));
+
+			jmailSender.send(mime);
+
+		}
+
+	}
 }

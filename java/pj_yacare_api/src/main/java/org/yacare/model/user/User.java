@@ -18,8 +18,9 @@ public class User {
 	private Boolean erased = null;
 	private String userName;
 	private String password;
-	private String mainEmail;	
+	private String mainEmail;
 	private Person personalInformation = null;
+	private Boolean checkEmail = null;
 	private List<Token> tokens = new ArrayList<Token>();
 
 	// -----------------------------------------------------
@@ -160,12 +161,34 @@ public class User {
 		this.mainEmail = mainEmail;
 	}
 
+	// -----------------------------------------------------
+	// --- mainEmail
+	// -----------------------------------------------------
+
 	public List<Token> getTokens() {
 		return tokens;
 	}
 
 	public void setTokens(List<Token> tokens) {
 		this.tokens = tokens;
+	}
+
+	// -----------------------------------------------------
+	// --- checkEmail
+	// -----------------------------------------------------
+
+	/**
+	 * Si el correo electrónico ha sido confirmado.
+	 * 
+	 * @return checkEmail
+	 **/
+	@ApiModelProperty(value = "Si el correo electrónico ha sido confirmado.")
+	public Boolean getCheckEmail() {
+		return checkEmail;
+	}
+
+	public void setCheckEmail(Boolean checkEmail) {
+		this.checkEmail = checkEmail;
 	}
 
 }

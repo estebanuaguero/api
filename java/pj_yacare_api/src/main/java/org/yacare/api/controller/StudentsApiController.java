@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.yacare.Swagger2SpringBoot;
+import org.yacare.MainYacare;
 import org.yacare.api.StudentsApi;
 import org.yacare.bo.academic.student.StudentBo;
 import org.yacare.model.academic.student.Student;
@@ -48,7 +48,7 @@ public class StudentsApiController implements StudentsApi {
 		}
 
 		StudentBo studentBo = new StudentBo();
-		studentBo.setDataSourceWrapper(Swagger2SpringBoot
+		studentBo.setDataSourceWrapper(MainYacare
 				.getDataSourceWrapper());
 
 		Student student = studentBo.getStudentByPersonId(id);
@@ -80,7 +80,7 @@ public class StudentsApiController implements StudentsApi {
 			Integer limit) {
 
 		StudentBo studentBo = new StudentBo();
-		studentBo.setDataSourceWrapper(Swagger2SpringBoot
+		studentBo.setDataSourceWrapper(MainYacare
 				.getDataSourceWrapper());
 
 		List<Student> students = studentBo.getStudents(offset, limit);

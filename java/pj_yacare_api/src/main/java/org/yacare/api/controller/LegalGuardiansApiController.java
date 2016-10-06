@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.yacare.Swagger2SpringBoot;
+import org.yacare.MainYacare;
 import org.yacare.api.LegalGuardiansApi;
 import org.yacare.bo.legal_guardian.LegalGuardianBo;
 import org.yacare.model.academic.student.legal_guardian.LegalGuardian;
@@ -47,7 +47,7 @@ public class LegalGuardiansApiController implements LegalGuardiansApi {
 		}
 
 		LegalGuardianBo legalGuardianBo = new LegalGuardianBo();
-		legalGuardianBo.setDataSourceWrapper(Swagger2SpringBoot
+		legalGuardianBo.setDataSourceWrapper(MainYacare
 				.getDataSourceWrapper());
 
 		LegalGuardian legalGuardian = legalGuardianBo
@@ -70,7 +70,7 @@ public class LegalGuardiansApiController implements LegalGuardiansApi {
 			Integer offset, Integer limit) {
 
 		LegalGuardianBo legalGuardianBo = new LegalGuardianBo();
-		legalGuardianBo.setDataSourceWrapper(Swagger2SpringBoot
+		legalGuardianBo.setDataSourceWrapper(MainYacare
 				.getDataSourceWrapper());
 
 		List<LegalGuardian> legalGuardians = legalGuardianBo.getLegalGuardians(

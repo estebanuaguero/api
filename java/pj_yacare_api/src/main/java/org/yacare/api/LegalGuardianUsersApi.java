@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.yacare.api.ex.ApiException;
 import org.yacare.model.ApiError;
 import org.yacare.model.user.User;
+import org.yacare.model.user.UserAvaileability;
 
 @Api(value = "guardian_users")
 public interface LegalGuardianUsersApi {
@@ -29,7 +30,8 @@ public interface LegalGuardianUsersApi {
 	public static final String msg422 = "Argumento inválido";
 	public static final String msg500 = "Error interno del servidor";
 
-	public static final String msg201 = "Usuario creado";
+	public static final String msg201_post = "Usuario creado";
+	public static final String msg201_put = "Usuario creado";
 	// public static final String msg400 = "Campos incorrectos";
 	public static final String msg409 = "Error de negocio";
 
@@ -60,7 +62,7 @@ public interface LegalGuardianUsersApi {
 	// ---------------------------------------------------------------------------------------
 
 	public static String endPointUrl_2 = endPointUrl_1 + "/{user_name}";
-	public static String endPointTitle_2 = "Usuario por user name";
+	public static String endPointTitle_2 = "Usuario por nombre de usuario";
 	public static String endPointReturn_2 = "Retorna un usuario";
 
 	public static String endPointArg1Title_2 = "Nombre de usuario";
@@ -82,7 +84,7 @@ public interface LegalGuardianUsersApi {
 
 	public static String endPointUrl_3 = "/guardian_users";
 	public static String endPointTitle_3 = "Crear usuario";
-	public static String endPointReturn_3 = "Retorna un listado de usuarios";
+	public static String endPointReturn_3 = "Retorna un usuario";
 
 	public static String endPointArg1Title_3 = "Usuario a dar de alta.";
 
@@ -90,7 +92,7 @@ public interface LegalGuardianUsersApi {
 
 	@ApiOperation(value = endPointTitle_3, notes = notes, response = User.class, tags = { tagName })
 	@ApiResponses(value = {
-			@ApiResponse(code = 201, message = msg201, response = User.class),
+			@ApiResponse(code = 201, message = msg201_post, response = User.class),
 			@ApiResponse(code = 404, message = msg404, response = ApiError.class),
 			@ApiResponse(code = 409, message = msg409, response = ApiError.class),
 			@ApiResponse(code = 422, message = msg422, response = ApiError.class),
@@ -102,4 +104,51 @@ public interface LegalGuardianUsersApi {
 
 	) throws ApiException;
 
-}
+	// ---------------------------------------------------------------------------------------
+
+	public static String endPointUrl_4 = "/guardian_users";
+	public static String endPointTitle_4 = "Crear usuario";
+	public static String endPointReturn_4 = "Retorna un usuario";
+
+	public static String endPointArg1Title_4 = "Usuario a modificar.";
+
+	// public static String endPointArg1_3 = "user";
+
+	@ApiOperation(value = endPointTitle_4, notes = notes, response = User.class, tags = { tagName })
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = msg201_put, response = User.class),
+			@ApiResponse(code = 404, message = msg404, response = ApiError.class),
+			@ApiResponse(code = 409, message = msg409, response = ApiError.class),
+			@ApiResponse(code = 422, message = msg422, response = ApiError.class),
+			@ApiResponse(code = 500, message = msg500, response = ApiError.class) })
+	@RequestMapping(value = endPointUrl_4, produces = { produces }, method = RequestMethod.PUT)
+	ResponseEntity<User> updateLegalGuardianUser(
+
+			@ApiParam(value = endPointArg1Title_4, required = true) @RequestBody User user
+
+	) throws ApiException;
+
+	// ---------------------------------------------------------------------------------------
+	
+	
+	
+	public static String endPointUrl_5 = endPointUrl_2 + "/availeability";
+	public static String endPointTitle_5 = "Usuario por nombre de usuario";
+	public static String endPointReturn_5 = "Retorna un usuario";
+
+	public static String endPointArg1Title_5 = "Nombre de usuario";
+	public static String endPointArg1_5 = "user_name";
+
+
+	@ApiOperation(value = endPointTitle_5, notes = notes, response = UserAvaileability.class, tags = { tagName, })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = endPointReturn_5, response = UserAvaileability.class),
+			@ApiResponse(code = 404, message = msg404, response = ApiError.class),
+			@ApiResponse(code = 500, message = msg500, response = ApiError.class) })
+	@RequestMapping(value = endPointUrl_5, produces = { produces }, method = RequestMethod.GET)
+	ResponseEntity<UserAvaileability> availeabilityGet(
+			@ApiParam(value = endPointArg1Title_5, required = true) @PathVariable(endPointArg1_5) String userName
+
+	);
+
+} // END CLASS

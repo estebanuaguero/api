@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.yacare.Swagger2SpringBoot;
+import org.yacare.MainYacare;
 import org.yacare.api.AnnualEnrollmentsApi;
 import org.yacare.bo.academic.student.annual_enrollment.AnnualEnrollmentBo;
 import org.yacare.model.academic.student.annual_enrollment.AnnualEnrollment;
@@ -47,7 +47,7 @@ public class AnnualEnrollmentsApiController implements AnnualEnrollmentsApi {
 			Boolean lastAdmission) {
 
 		AnnualEnrollmentBo annualEnrollmentBo = new AnnualEnrollmentBo();
-		annualEnrollmentBo.setDataSourceWrapper(Swagger2SpringBoot
+		annualEnrollmentBo.setDataSourceWrapper(MainYacare
 				.getDataSourceWrapper());
 
 		List<AnnualEnrollment> annualEnrollments = annualEnrollmentBo

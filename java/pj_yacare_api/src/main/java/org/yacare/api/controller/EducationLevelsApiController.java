@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.yacare.Swagger2SpringBoot;
+import org.yacare.MainYacare;
 import org.yacare.api.EducationLevelsApi;
 import org.yacare.model.academic.student.legal_guardian.EducationLevel;
 import org.yacare.model.academic.student.legal_guardian.EducationLevelBo;
@@ -43,7 +43,7 @@ public class EducationLevelsApiController implements EducationLevelsApi {
 			Integer offset, Integer limit) {
 
 		EducationLevelBo educationLevelBo = new EducationLevelBo();
-		educationLevelBo.setDataSourceWrapper(Swagger2SpringBoot
+		educationLevelBo.setDataSourceWrapper(MainYacare
 				.getDataSourceWrapper());
 
 		List<EducationLevel> educationLevels = educationLevelBo

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.yacare.Swagger2SpringBoot;
+import org.yacare.MainYacare;
 import org.yacare.api.PhoneTypesApi;
 import org.yacare.bo.communication_options.phone.PhoneTypeBo;
 import org.yacare.model.person.communication_options.phone.PhoneType;
@@ -43,7 +43,7 @@ public class PhoneTypesApiController implements PhoneTypesApi {
 			Integer limit) {
 
 		PhoneTypeBo phoneTypeBo = new PhoneTypeBo();
-		phoneTypeBo.setDataSourceWrapper(Swagger2SpringBoot
+		phoneTypeBo.setDataSourceWrapper(MainYacare
 				.getDataSourceWrapper());
 
 		List<PhoneType> phoneTypes = phoneTypeBo

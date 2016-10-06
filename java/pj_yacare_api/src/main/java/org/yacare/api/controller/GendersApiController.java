@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.yacare.Swagger2SpringBoot;
+import org.yacare.MainYacare;
 import org.yacare.api.GendersApi;
 import org.yacare.bo.person.physical.PersonGenderBo;
 import org.yacare.model.person.physical.PersonGender;
@@ -43,7 +43,7 @@ public class GendersApiController implements GendersApi {
 			Integer limit) {
 
 		PersonGenderBo genderBo = new PersonGenderBo();
-		genderBo.setDataSourceWrapper(Swagger2SpringBoot.getDataSourceWrapper());
+		genderBo.setDataSourceWrapper(MainYacare.getDataSourceWrapper());
 
 		List<PersonGender> genders = genderBo.getGenders(offset, limit);
 

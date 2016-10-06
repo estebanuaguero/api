@@ -11,7 +11,9 @@ CREATE TABLE yacare.legal_guardian_user
 	  id VARCHAR NOT NULL,
 	  erased BOOLEAN DEFAULT false NOT NULL,
 	  password  VARCHAR NOT NULL,	  
+	  validate_email BOOLEAN DEFAULT false NOT NULL,
 	  physical_person_id VARCHAR NOT NULL,
+	  
 	  
 	  CONSTRAINT legal_guardian_user_pkey PRIMARY KEY (id),
 	  CONSTRAINT physical_person_id_fkey FOREIGN KEY (physical_person_id)
@@ -23,6 +25,9 @@ CREATE TABLE yacare.legal_guardian_user
 
 ------------------------------------------------------------------------------------------------------------------------
 
+ALTER TABLE yacare.legal_guardian_user_token
+  ADD COLUMN x time with time zone;
+
 DROP TABLE IF EXISTS yacare.legal_guardian_user_token CASCADE;
 
 CREATE TABLE yacare.legal_guardian_user_token
@@ -30,7 +35,7 @@ CREATE TABLE yacare.legal_guardian_user_token
 	  id VARCHAR NOT NULL,
 	  erased BOOLEAN DEFAULT false NOT NULL,	  	  
 	  used BOOLEAN DEFAULT false NOT NULL,
-	  creation_date TIMESTAMP NOT NULL DEFAULT now()::TIMESTAMP,
+	  creation_date timestamp with time zone NOT NULL DEFAULT now()::TIMESTAMP,
 	  legal_guardian_user_id VARCHAR NOT NULL,
 	  
 	  CONSTRAINT legal_guardian_user_token_pkey PRIMARY KEY (id),
@@ -1088,10 +1093,10 @@ CREATE OR REPLACE VIEW yacare.v_person AS
 		CASE 	WHEN pp.state_enable = true THEN false::BOOLEAN
 			ELSE true::BOOLEAN
 		END AS erased,
-		CASE 	WHEN pp.name IS NOT NULL AND CHAR_LENGTH(TRIM(pp.name)) > 0 THEN '["' || REPLACE(TRIM(pp.name), '"', '\"') || '"]'::VARCHAR
+		CASE 	WHEN pp.name IS NOT NULL AND CHAR_LENGTH(TRIM(pp.name)) > 0 THEN '["' || REPLACE(INITCAP(LOWER(TRIM(pp.name))), '"', '\"') || '"]'::VARCHAR
 			ELSE null::VARCHAR
 		END AS names,
-		CASE 	WHEN pp.last_name IS NOT NULL AND CHAR_LENGTH(TRIM(pp.last_name)) > 0 THEN '["' || REPLACE(TRIM(pp.last_name), '"', '\"') || '"]'::VARCHAR
+		CASE 	WHEN pp.last_name IS NOT NULL AND CHAR_LENGTH(TRIM(pp.last_name)) > 0 THEN '["' || REPLACE(INITCAP(LOWER(TRIM(pp.last_name))), '"', '\"') || '"]'::VARCHAR
 			ELSE null::VARCHAR
 		END AS last_names,
 		CASE 	WHEN pp.masculine = true THEN 'M'::VARCHAR
@@ -1951,6 +1956,11 @@ $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 --							USER
 -- =============================================================================================================================
 
+create or replace function iso_timestamp(timestamp with time zone) 
+   returns varchar as $$ 
+  select substring(xmlelement(name x, $1)::varchar from 4 for 32) 
+$$ language sql immutable; 
+
 -- ____________________________________________________ TOKEN  _________________________________________________________________
 
 DROP VIEW IF EXISTS yacare.v_token_json CASCADE; 
@@ -1962,20 +1972,30 @@ CREATE OR REPLACE VIEW yacare.v_token_json AS
 		'{'
 			|| yacare.ja('id', TRIM(token.id), true)
 			|| yacare.ja('erased', token.erased)
-			--|| yacare.ja('creationDate', token.creation_date)	
+			|| yacare.ja('creationDate', to_char(token.creation_date, 'yyyy-MM-dd"T"HH:mm:ss.SS'))				
+			--|| yacare.ja('creationDate', iso_timestamp(token.creation_date))			
 			--|| yacare.ja('creationDate', '2016-10-03 17:59:54.57')	
-			|| yacare.ja('creationDate', '2016-10-03 17:59:54')	
+			--|| yacare.ja('creationDate', '2016-10-03 17:59:54')	
 			--|| yacare.ja('creationDate', '2016-10-03')	
+			--|| yacare.ja('creationDate', now()::TIMESTAMP)	
 								
 		|| '}'
 		)::VARCHAR AS json
 	FROM 	yacare.legal_guardian_user_token AS token;	
 
 -- SELECT * FROM yacare.v_token_json;
+ -- SELECT to_char(now(), 'yyyy-MM-dd''T''HH:mm:ss.SSSZ')
+ -- SELECT now()::TIMESTAMP
+  -- SELECT iso_timestamp(now()) -- "2016-10-04T11:57:56.69128-03:00<"
+
+  -- SELECT to_char(now(), 'yyyy-MM-dd"T"HH:mm:ss.SSSZ')
+
+
+-- SELECT to_char(now() at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
 
 
 
-
+ -- select iso_timestamp(now()::TIMESTAMP); 
 
 -- ____________________________________________________ LEGAL GUARDIAN USER  _________________________________________________________________
 
@@ -1997,6 +2017,7 @@ CREATE OR REPLACE VIEW yacare.v_legal_guardian_user_json AS
 			|| yacare.ja('userName', LOWER(TRIM(person.identification_number))::VARCHAR)
 			|| yacare.ja('password', TRIM(u.password))			
 			|| yacare.ja('mainEmail', person.main_email)
+			|| yacare.ja('checkEmail', u.validate_email)
 
 			|| ', "personalInformation":{'
 			------------------------------------------------------------------------------------------------
@@ -2040,7 +2061,6 @@ CREATE OR REPLACE VIEW yacare.v_legal_guardian_user_json AS
 		------------------------------------------------------------------------------------------------
 		|| '}')::VARCHAR AS json	
 	FROM	yacare.legal_guardian_user u
-	--JOIN	yacare.v_person_json AS person
 	JOIN	yacare.v_person AS person
 		ON person.id = u.physical_person_id	
 		LEFT JOIN yacare.v_identity_type_json identity_type
@@ -2051,6 +2071,36 @@ CREATE OR REPLACE VIEW yacare.v_legal_guardian_user_json AS
 	WHERE	yacare.f_legal_guardian_check(person.id) = true;
 
 -- SELECT * FROM yacare.v_legal_guardian_user_json LIMIT 100;
+-- SELECT * FROM yacare.legal_guardian_user u LIMIT 100;
+
+-- ____________________________________________________ LEGAL GUARDIAN USER Availeability  _________________________________________________________________
+
+
+
+DROP VIEW IF EXISTS yacare.v_legal_guardian_user_availeability_json CASCADE; 
+
+CREATE OR REPLACE VIEW yacare.v_legal_guardian_user_availeability_json AS
+
+	SELECT	u.id AS legal_guardian_user_id,
+		person.id AS person_id,
+		person.identification_number AS user_name,
+		u.erased,		
+		('{'
+		------------------------------------------------------------------------------------------------			
+			|| yacare.ja('checkEmail', u.validate_email, true)			
+		------------------------------------------------------------------------------------------------
+		|| '}')::VARCHAR AS json	
+	FROM	yacare.legal_guardian_user u
+	JOIN	yacare.v_person AS person
+		ON person.id = u.physical_person_id	
+		LEFT JOIN yacare.v_identity_type_json identity_type
+			ON person.identification_type_person_id = identity_type.id	
+		LEFT JOIN yacare.v_identity_type_json identity_type_cuil
+			ON person.cuil_cuit IS NOT NULL
+			AND identity_type_cuil.code = 'ARG_CUIL'	
+	WHERE	yacare.f_legal_guardian_check(person.id) = true;
+
+-- SELECT * FROM yacare.v_legal_guardian_user_availeability_json LIMIT 100;
 -- SELECT * FROM yacare.legal_guardian_user u LIMIT 100;
 
 ------------------------------------------------------------------------------------------------------------------------------
@@ -2087,6 +2137,21 @@ CREATE OR REPLACE FUNCTION yacare.f_legal_guardian_users_by_user_name(user_name_
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
 -- SELECT * FROM yacare.f_legal_guardian_users_by_user_name('13567967');
+
+------------------------------------------------------------------------------------------------------------------------------
+
+DROP FUNCTION IF EXISTS yacare.f_legal_guardian_users_availeability_by_user_name(user_name_arg character varying) CASCADE;
+
+CREATE OR REPLACE FUNCTION yacare.f_legal_guardian_users_availeability_by_user_name(user_name_arg character varying) RETURNS SETOF character varying AS $BODY$
+
+	SELECT 	legal_guardian.json::VARCHAR 
+	FROM 	yacare.v_legal_guardian_user_json AS legal_guardian 
+	WHERE 	LOWER(TRIM(legal_guardian.user_name)) = LOWER(TRIM($1))
+		--AND legal_guardian.erased = false		
+	
+$BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
+
+-- SELECT * FROM yacare.f_legal_guardian_users_availeability_by_user_name('13567967');
 
 
 ------------------------------------------------------------------------------------------------------------------------------

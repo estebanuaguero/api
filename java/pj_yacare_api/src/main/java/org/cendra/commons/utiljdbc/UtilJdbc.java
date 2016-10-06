@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import org.cendra.commons.utiljdbc.ex.ExFindJsonDao;
 import org.cendra.commons.utiljdbc.ex.ExUnexpectedResult;
 import org.cendra.commons.utiljdbc.ex.ExUpdateInsertDao;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
 
 public class UtilJdbc {
 
@@ -59,7 +61,7 @@ public class UtilJdbc {
 			ExUpdateInsertDao ex = new ExUpdateInsertDao(this.getClass(), e,
 					connectionWrapper);
 
-//			ex.setFirstTrace(e, this.getClass());
+			// ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -91,7 +93,7 @@ public class UtilJdbc {
 		} catch (Exception e) {
 			ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-//			ex.setFirstTrace(e, this.getClass());
+			// ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -119,7 +121,7 @@ public class UtilJdbc {
 
 		ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-//		ex.setFirstTrace(e, this.getClass());
+		// ex.setFirstTrace(e, this.getClass());
 
 		throw ex;
 
@@ -145,7 +147,7 @@ public class UtilJdbc {
 
 		ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-//		ex.setFirstTrace(e, this.getClass());
+		// ex.setFirstTrace(e, this.getClass());
 
 		throw ex;
 
@@ -180,7 +182,7 @@ public class UtilJdbc {
 		} catch (Exception e) {
 			ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-//			ex.setFirstTrace(e, this.getClass());
+			// ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -216,7 +218,7 @@ public class UtilJdbc {
 		} catch (Exception e) {
 			ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-//			ex.setFirstTrace(e, this.getClass());
+			// ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -250,7 +252,7 @@ public class UtilJdbc {
 		} catch (Exception e) {
 			ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-//			ex.setFirstTrace(e, this.getClass());
+			// ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -328,7 +330,7 @@ public class UtilJdbc {
 		} catch (Exception e) {
 			ExFindDao ex = new ExFindDao(this.getClass(), e, connectionWrapper);
 
-//			ex.setFirstTrace(e, this.getClass());
+			// ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 		}
@@ -352,8 +354,7 @@ public class UtilJdbc {
 
 			printSQLEnd();
 
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.setDateFormat(myDateFormat);
+			ObjectMapper mapper = buidlObjectMapper();
 
 			while (resultSet.next()) {
 
@@ -383,7 +384,7 @@ public class UtilJdbc {
 			ExFindJsonDao ex = new ExFindJsonDao(this.getClass(), e,
 					connectionWrapper, json);
 
-//			ex.setFirstTrace(e, this.getClass());
+			// ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 
@@ -407,7 +408,7 @@ public class UtilJdbc {
 
 			printSQLEnd();
 
-			ObjectMapper mapper = new ObjectMapper();
+			ObjectMapper mapper = buidlObjectMapper();
 
 			while (resultSet.next()) {
 
@@ -438,7 +439,7 @@ public class UtilJdbc {
 			ExFindJsonDao ex = new ExFindJsonDao(this.getClass(), e,
 					connectionWrapper, json);
 
-//			ex.setFirstTrace(e, this.getClass());
+			// ex.setFirstTrace(e, this.getClass());
 
 			throw ex;
 
@@ -661,6 +662,20 @@ public class UtilJdbc {
 			// System.out.println("---------------------  END - SQL ---------------------------- "
 			// + new Timestamp(System.currentTimeMillis()) + "\n");
 		}
+
+	}
+
+	private ObjectMapper buidlObjectMapper() {
+		ObjectMapper mapper = new ObjectMapper();
+		
+		SimpleDateFormat sdf = new SimpleDateFormat(
+				"yyyy-MM-dd'T'HH:mm:ss.SSSz");
+		// mapper.setDateFormat(sdf);
+		 mapper.getDeserializationConfig().withDateFormat(sdf);
+//		mapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS,
+//				false);
+
+		return mapper;
 
 	}
 

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.yacare.Swagger2SpringBoot;
+import org.yacare.MainYacare;
 import org.yacare.api.FamilyRelationshipTypesApi;
 import org.yacare.bo.person.physical.FamilyRelationshipTypeBo;
 import org.yacare.model.academic.student.FamilyRelationshipType;
@@ -44,7 +44,7 @@ public class FamilyRelationshipTypesApiController implements
 			Integer offset, Integer limit) {
 
 		FamilyRelationshipTypeBo bloodGroupBo = new FamilyRelationshipTypeBo();
-		bloodGroupBo.setDataSourceWrapper(Swagger2SpringBoot
+		bloodGroupBo.setDataSourceWrapper(MainYacare
 				.getDataSourceWrapper());
 
 		List<FamilyRelationshipType> familyRelationshipTypes = bloodGroupBo

@@ -5,21 +5,33 @@ import io.swagger.annotations.ApiParam;
 import java.util.List;
 
 import org.cendra.commons.ex.AbstractGenericException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.yacare.Swagger2SpringBoot;
+import org.yacare.MainYacare;
 import org.yacare.api.LegalGuardianUsersApi;
 import org.yacare.bo.user.UserBo;
 import org.yacare.model.ApiError;
 import org.yacare.model.user.User;
+import org.yacare.model.user.UserAvaileability;
 
 @Controller
 public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
+
+	@Autowired
+	private MailSender mailSender;
+
+	// @Value("${send.from.email}")
+	// private String fromEmail;
+	//
+	// @Value("${send.to.email}")
+	// private String toEmail;
 
 	// -------------------------------------------------------------------------------
 
@@ -45,6 +57,7 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 	// -------------------------------------------------------------------------------
 
 	@SuppressWarnings("unchecked")
+	@CrossOrigin(origins = "*")
 	public ResponseEntity<User> createLegalGuardianUser(
 			@ApiParam(value = endPointTitle_3, required = true) @RequestBody User user
 
@@ -52,6 +65,28 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 
 		return utilCreateLegalGuardianUser(user);
 		// return new ResponseEntity<User>(user, HttpStatus.OK);
+	}
+
+	// -------------------------------------------------------------------------------
+
+	@SuppressWarnings("unchecked")
+	@CrossOrigin(origins = "*")
+	public ResponseEntity<User> updateLegalGuardianUser(
+			@ApiParam(value = endPointTitle_4, required = true) @RequestBody User user
+
+	) {
+
+		return utilUpdateLegalGuardianUser(user);
+	}
+
+	// -------------------------------------------------------------------------------
+
+	@SuppressWarnings("unchecked")
+	@CrossOrigin(origins = "*")
+	public ResponseEntity<UserAvaileability> availeabilityGet(
+			@ApiParam(value = endPointArg1Title_5, required = true) @PathVariable(endPointArg1_5) String userName) {
+
+		return utilAvaileabilityGet(userName);
 	}
 
 	// ================================================================================
@@ -62,8 +97,8 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 		try {
 
 			UserBo userBo = new UserBo();
-			userBo.setDataSourceWrapper(Swagger2SpringBoot
-					.getDataSourceWrapper());
+			userBo.setDataSourceWrapper(MainYacare.getDataSourceWrapper());
+			userBo.setGeneralProperties(MainYacare.generalProperties);
 
 			User user = userBo.getLegalGuardianUsersByUserName(userName);
 
@@ -91,7 +126,8 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 	private ResponseEntity getLegalGuardianUsers(Integer offset, Integer limit) {
 
 		UserBo userBo = new UserBo();
-		userBo.setDataSourceWrapper(Swagger2SpringBoot.getDataSourceWrapper());
+		userBo.setDataSourceWrapper(MainYacare.getDataSourceWrapper());
+		userBo.setGeneralProperties(MainYacare.generalProperties);
 
 		try {
 
@@ -113,11 +149,14 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 	private ResponseEntity utilCreateLegalGuardianUser(User user) {
 
 		UserBo userBo = new UserBo();
-		userBo.setDataSourceWrapper(Swagger2SpringBoot.getDataSourceWrapper());
+		userBo.setDataSourceWrapper(MainYacare.getDataSourceWrapper());
+		userBo.setMailSender(mailSender);
+		userBo.setGeneralProperties(MainYacare.generalProperties);
 
 		try {
 
 			user = userBo.createLegalGuardianUser(user);
+
 			return new ResponseEntity<User>(user, HttpStatus.CREATED);
 
 		} catch (AbstractGenericException e) {
@@ -125,6 +164,61 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 			ApiError apiError = new ApiError(e, this.getClass());
 
 			return new ResponseEntity<ApiError>(apiError, apiError.httpStatus());
+
+		}
+
+	}
+
+	// -------------------------------------------------------------------------------
+
+	@SuppressWarnings("rawtypes")
+	private ResponseEntity utilUpdateLegalGuardianUser(User user) {
+
+		UserBo userBo = new UserBo();
+		userBo.setDataSourceWrapper(MainYacare.getDataSourceWrapper());
+		userBo.setMailSender(mailSender);
+		userBo.setGeneralProperties(MainYacare.generalProperties);
+
+		try {
+
+			user = userBo.updateLegalGuardianUser(user);
+
+			return new ResponseEntity<User>(user, HttpStatus.CREATED);
+
+		} catch (AbstractGenericException e) {
+
+			ApiError apiError = new ApiError(e, this.getClass());
+
+			return new ResponseEntity<ApiError>(apiError, apiError.httpStatus());
+
+		}
+
+	}
+
+	// -------------------------------------------------------------------------------
+
+	@SuppressWarnings("rawtypes")
+	private ResponseEntity utilAvaileabilityGet(String userName) {
+
+		UserBo userBo = new UserBo();
+		userBo.setDataSourceWrapper(MainYacare.getDataSourceWrapper());
+		userBo.setMailSender(mailSender);
+		userBo.setGeneralProperties(MainYacare.generalProperties);
+
+		try {
+
+			UserAvaileability user = userBo.userAvaileability(userName);
+
+			return new ResponseEntity<UserAvaileability>(user, HttpStatus.OK);
+
+		} catch (AbstractGenericException e) {
+
+			ApiError apiError = new ApiError(e, this.getClass());
+
+			return new ResponseEntity<ApiError>(apiError, apiError.httpStatus());
+			// return new ResponseEntity<ApiError>(apiError,
+			// HttpStatus.NOT_FOUND);
+
 		}
 
 	}

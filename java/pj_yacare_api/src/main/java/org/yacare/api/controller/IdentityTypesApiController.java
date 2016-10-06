@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.yacare.Swagger2SpringBoot;
+import org.yacare.MainYacare;
 import org.yacare.api.IdentityTypesApi;
 import org.yacare.bo.person.identity_document.IdentityTypeBo;
 import org.yacare.model.person.identity_document.IdentityType;
@@ -43,7 +43,7 @@ public class IdentityTypesApiController implements IdentityTypesApi {
 			Integer limit) {
 
 		IdentityTypeBo identityTypeBo = new IdentityTypeBo();
-		identityTypeBo.setDataSourceWrapper(Swagger2SpringBoot
+		identityTypeBo.setDataSourceWrapper(MainYacare
 				.getDataSourceWrapper());
 
 		List<IdentityType> identityTypes = identityTypeBo.getIdentityTypes(

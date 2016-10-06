@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.yacare.Swagger2SpringBoot;
+import org.yacare.MainYacare;
 import org.yacare.api.BloodGroupsApi;
 import org.yacare.bo.health.BloodGroupBo;
 import org.yacare.model.health.BloodGroup;
@@ -43,7 +43,7 @@ public class BloodGroupsApiController implements BloodGroupsApi {
 			Integer limit) {
 
 		BloodGroupBo bloodGroupBo = new BloodGroupBo();
-		bloodGroupBo.setDataSourceWrapper(Swagger2SpringBoot
+		bloodGroupBo.setDataSourceWrapper(MainYacare
 				.getDataSourceWrapper());
 
 		List<BloodGroup> bloodGroups = bloodGroupBo.getBloodGroups(offset,

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.yacare.Swagger2SpringBoot;
+import org.yacare.MainYacare;
 import org.yacare.api.BloodFactorsApi;
 import org.yacare.bo.health.BloodFactorBo;
 import org.yacare.model.health.BloodFactor;
@@ -43,7 +43,7 @@ public class BloodFactorsApiController implements BloodFactorsApi {
 			Integer limit) {
 
 		BloodFactorBo bloodFactorBo = new BloodFactorBo();
-		bloodFactorBo.setDataSourceWrapper(Swagger2SpringBoot
+		bloodFactorBo.setDataSourceWrapper(MainYacare
 				.getDataSourceWrapper());
 
 		List<BloodFactor> bloodFactors = bloodFactorBo.getBloodFactors(offset,

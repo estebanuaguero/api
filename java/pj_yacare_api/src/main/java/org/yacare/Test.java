@@ -2278,7 +2278,7 @@ public class Test {
 		List<String> idsOk = new ArrayList<String>();
 
 		StudentBo studentBo = new StudentBo();
-		studentBo.setDataSourceWrapper(Swagger2SpringBoot
+		studentBo.setDataSourceWrapper(MainYacare
 				.getDataSourceWrapper());
 
 		// for (String id : studentIdList) {
@@ -2430,7 +2430,7 @@ public class Test {
 		List<String> idsOk = new ArrayList<String>();
 
 		LegalGuardianBo legalGuardianBo = new LegalGuardianBo();
-		legalGuardianBo.setDataSourceWrapper(Swagger2SpringBoot
+		legalGuardianBo.setDataSourceWrapper(MainYacare
 				.getDataSourceWrapper());
 
 		// for (String id : legalGuardianIdList) {
