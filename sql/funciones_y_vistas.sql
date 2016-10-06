@@ -1955,12 +1955,12 @@ $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 -- =============================================================================================================================
 --							USER
 -- =============================================================================================================================
-
+/*
 create or replace function iso_timestamp(timestamp with time zone) 
    returns varchar as $$ 
   select substring(xmlelement(name x, $1)::varchar from 4 for 32) 
 $$ language sql immutable; 
-
+*/
 -- ____________________________________________________ TOKEN  _________________________________________________________________
 
 DROP VIEW IF EXISTS yacare.v_token_json CASCADE; 
@@ -2145,7 +2145,7 @@ DROP FUNCTION IF EXISTS yacare.f_legal_guardian_users_availeability_by_user_name
 CREATE OR REPLACE FUNCTION yacare.f_legal_guardian_users_availeability_by_user_name(user_name_arg character varying) RETURNS SETOF character varying AS $BODY$
 
 	SELECT 	legal_guardian.json::VARCHAR 
-	FROM 	yacare.v_legal_guardian_user_json AS legal_guardian 
+	FROM 	yacare.v_legal_guardian_user_availeability_json AS legal_guardian 
 	WHERE 	LOWER(TRIM(legal_guardian.user_name)) = LOWER(TRIM($1))
 		--AND legal_guardian.erased = false		
 	
