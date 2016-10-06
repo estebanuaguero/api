@@ -158,7 +158,7 @@ public class UserBo extends AbstractBo {
 
 				throw new BussinessNotFoundException(this.getClass(),
 						"No se encontro el usuario con nombre "
-								+ user.getUserName());
+								+ userName);
 			}
 
 			// --------------------------------------------------------------------------------------------------------
