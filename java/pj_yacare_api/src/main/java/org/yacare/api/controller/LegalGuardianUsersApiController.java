@@ -18,6 +18,7 @@ import org.yacare.MainYacare;
 import org.yacare.api.LegalGuardianUsersApi;
 import org.yacare.bo.user.UserBo;
 import org.yacare.model.ApiError;
+import org.yacare.model.user.Token;
 import org.yacare.model.user.User;
 import org.yacare.model.user.UserAvaileability;
 
@@ -87,6 +88,17 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 			@ApiParam(value = endPointArg1Title_5, required = true) @PathVariable(endPointArg1_5) String userName) {
 
 		return utilAvaileabilityGet(userName);
+	}
+
+	// -------------------------------------------------------------------------------
+
+	@SuppressWarnings("unchecked")
+	@CrossOrigin(origins = "*")
+	public ResponseEntity<UserAvaileability> checkEmailPut(
+			@ApiParam(value = endPointArg1Title_6, required = true) @PathVariable(endPointArg1_6) String userName,
+			@ApiParam(value = endPointArg2Title_6, required = true) @RequestBody Token token) {
+
+		return utilCheckEmailPut(userName, token);
 	}
 
 	// ================================================================================
@@ -216,8 +228,32 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 			ApiError apiError = new ApiError(e, this.getClass());
 
 			return new ResponseEntity<ApiError>(apiError, apiError.httpStatus());
-			// return new ResponseEntity<ApiError>(apiError,
-			// HttpStatus.NOT_FOUND);
+
+		}
+
+	}
+
+	// -------------------------------------------------------------------------------
+
+	@SuppressWarnings("rawtypes")
+	private ResponseEntity utilCheckEmailPut(String userName, Token token) {
+
+		UserBo userBo = new UserBo();
+		userBo.setDataSourceWrapper(MainYacare.getDataSourceWrapper());
+		userBo.setMailSender(mailSender);
+		userBo.setGeneralProperties(MainYacare.generalProperties);
+
+		try {
+
+			UserAvaileability user = userBo.updateLegalGuardianUserCheckEMail(userName, token);
+
+			return new ResponseEntity<UserAvaileability>(user, HttpStatus.OK);
+
+		} catch (AbstractGenericException e) {
+
+			ApiError apiError = new ApiError(e, this.getClass());
+
+			return new ResponseEntity<ApiError>(apiError, apiError.httpStatus());
 
 		}
 

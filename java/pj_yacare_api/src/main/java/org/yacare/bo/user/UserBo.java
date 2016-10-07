@@ -18,6 +18,7 @@ import org.cendra.commons.ex.ErrorBussinessException;
 import org.cendra.commons.ex.ExNotFound;
 import org.cendra.commons.ex.ExUnexpectedResult;
 import org.cendra.commons.utiljdbc.ConnectionWrapper;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -105,6 +106,13 @@ public class UserBo extends AbstractBo {
 
 	public UserAvaileability userAvaileability(String userName) {
 
+		if (userName == null || userName.trim().length() == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió evaluar la disponibilidad de un usuario con nombre nulo, es decir su nombre de usuario está vacio.");
+		}
+
 		ConnectionWrapper connectionWrapper = null;
 
 		try {
@@ -112,15 +120,18 @@ public class UserBo extends AbstractBo {
 			connectionWrapper = this.getDataSourceWrapper()
 					.getConnectionWrapper();
 
-			UserAvaileability user = utilUserAvaileability(userName,
-					connectionWrapper);
+			String sql = "SELECT * FROM yacare.f_legal_guardian_users_availeability_by_user_name(?);";
+
+			UserAvaileability user = (UserAvaileability) connectionWrapper
+					.findToJsonByExample(sql, UserAvaileability.class, userName);
 
 			if (user == null) {
 				throw new BussinessNotFoundException(this.getClass(),
-						"No se encontro el usuario con nombre " + userName);
-			} else if(user.getCheckEmail() == true){
+						"No se encontro el tutor con nombre " + userName);
+			} else if (user.getCheckEmail() == true) {
 				throw new BussinessNotAvailableException(this.getClass(),
-						"No se encontro el usuario con nombre " + userName);
+						"Ya existe un usuario (tutor) con nombre " + userName
+								+ " y correo validado.");
 			}
 
 			// --------------------------------------------------------------------------------------------------------
@@ -157,8 +168,7 @@ public class UserBo extends AbstractBo {
 					|| user.getId().trim().length() == 0) {
 
 				throw new BussinessNotFoundException(this.getClass(),
-						"No se encontro el usuario con nombre "
-								+ userName);
+						"No se encontro el usuario con nombre " + userName);
 			}
 
 			// --------------------------------------------------------------------------------------------------------
@@ -452,6 +462,132 @@ public class UserBo extends AbstractBo {
 
 	}
 
+	public UserAvaileability updateLegalGuardianUserCheckEMail(String userName,
+			Token token) {
+
+		if (userName == null || userName.trim().length() == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió validar el correo de un usuario con nombre nulo, es decir su nombre de usuario está vacio.");
+		}
+
+		if (token == null) {
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió validar el correo de un usuario con un token nulo, es decir un token sin datos.");
+		}
+
+		if (token.getId() == null || token.getId().trim().length() == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió validar el correo de un usuario con un token nulo, es decir su identificador de token está vacio.");
+		}
+
+		ConnectionWrapper connectionWrapper = null;
+
+		try {
+
+			connectionWrapper = this.getDataSourceWrapper()
+					.getConnectionWrapper();
+
+			connectionWrapper.begin();
+
+			// --------------------------------------------------------------------------------------------------------
+
+			String sql = "SELECT * FROM yacare.f_legal_guardian_users_token_availeability_by_user_name(?, ?);";
+
+			UserAvaileability user = (UserAvaileability) connectionWrapper
+					.findToJsonByExample(sql, UserAvaileability.class,
+							userName, token.getId());
+
+			if (user != null && user.getId() != null
+					&& user.getId().trim().length() > 0) {
+
+				if (user.getCheckEmail() != null
+						&& user.getCheckEmail() == true) {
+					throw new BussinessException(
+							this.getClass(),
+							"Se pretendió validar el correo de un usuario, cuando éste ya esta validado, es decir el usuario ya fue creado y validado. Nombre de usuario "
+									+ user.getUserName());
+				}
+
+				sql = "UPDATE yacare.legal_guardian_user SET validate_email = true WHERE id = ?";
+
+				int r = connectionWrapper.update(sql, user.getId());
+
+				if (r != 1) {
+					throw new ExUnexpectedResult(
+							this.getClass(),
+							"No se pudo actualizar el usuario para setear que el correo se validó, (usuario con nombre "
+									+ user.getUserName() + ").");
+				}
+
+				sql = "UPDATE yacare.legal_guardian_user_token SET used = true WHERE id = ?;";
+
+				r = connectionWrapper.update(sql, token.getId());
+
+				if (r == 0) {
+					throw new ExUnexpectedResult(
+							this.getClass(),
+							"No se pudo actualizar el usuario para setear que el correo se validó, (usuario con nombre "
+									+ user.getUserName()
+									+ "). No se pudo setear que e token se utilizó.");
+				}
+
+				sql = "SELECT * FROM yacare.f_legal_guardian_users_token_availeability_by_user_name(?, ?);";
+
+				user = (UserAvaileability) connectionWrapper
+						.findToJsonByExample(sql, UserAvaileability.class,
+								userName, token.getId());
+
+				if (user == null || user.getId() == null
+						|| user.getId().trim().length() == 0
+						|| user.getCheckEmail() == false) {
+
+					throw new BussinessException(this.getClass(),
+							"No se pudo validar el correo el usuario con nombre "
+									+ user.getUserName()
+									+ ". El usuario no existe.");
+				}
+
+				if (user.getCheckEmail() == false) {
+
+					throw new ExUnexpectedResult(
+							this.getClass(),
+							"No se pudo actualizar el usuario para setear que el correo se validó, (usuario con nombre "
+									+ user.getUserName() + ").");
+				}
+
+				// sendEmail(user);
+
+			} else {
+				throw new BussinessException(this.getClass(),
+						"No se pudo validar el correo el usuario con nombre "
+								+ user.getUserName()
+								+ ". El usuario no existe.");
+			}
+
+			// --------------------------------------------------------------------------------------------------------
+
+			connectionWrapper.commit();
+
+			return user;
+
+		} catch (Exception e) {
+
+			connectionWrapper.rollBack();
+			e.printStackTrace();
+			throw new ErrorBussinessException(this.getClass(),
+					"No se pudo crear el usuario con nombre " + userName, e);
+
+		} finally {
+			connectionWrapper.close(connectionWrapper);
+		}
+
+	}
+
 	private boolean userExists(User user, ConnectionWrapper connectionWrapper) {
 
 		return userExists(user.getUserName(), connectionWrapper);
@@ -467,18 +603,6 @@ public class UserBo extends AbstractBo {
 
 		return (user != null && user.getId() != null && user.getId().trim()
 				.length() > 0);
-	}
-
-	private UserAvaileability utilUserAvaileability(String userName,
-			ConnectionWrapper connectionWrapper) {
-
-		String sql = "SELECT * FROM yacare.f_legal_guardian_users_availeability_by_user_name(?);";
-
-		UserAvaileability user = (UserAvaileability) connectionWrapper
-				.findToJsonByExample(sql, UserAvaileability.class, userName);
-
-		return user;
-
 	}
 
 	private void completeData(User user, ConnectionWrapper connectionWrapper) {
@@ -517,7 +641,7 @@ public class UserBo extends AbstractBo {
 	private void sendEmail(User user) throws Exception {
 
 		String tokenValue = user.getTokens().get(user.getTokens().size() - 1)
-				.getTokenValue();
+				.getId();
 
 		String name = "";
 		String lastName = "";
@@ -577,6 +701,9 @@ public class UserBo extends AbstractBo {
 			htmlText = htmlText.replace("${token}", tokenValue);
 
 			helper.setText(htmlText, true);
+			
+			
+			
 			helper.addAttachment(
 					"cnm.png",
 					new File(

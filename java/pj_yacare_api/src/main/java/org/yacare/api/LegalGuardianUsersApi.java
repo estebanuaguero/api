@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.yacare.api.ex.ApiException;
 import org.yacare.model.ApiError;
+import org.yacare.model.user.Token;
 import org.yacare.model.user.User;
 import org.yacare.model.user.UserAvaileability;
 
@@ -129,25 +130,51 @@ public interface LegalGuardianUsersApi {
 	) throws ApiException;
 
 	// ---------------------------------------------------------------------------------------
-	
-	
-	
+
 	public static String endPointUrl_5 = endPointUrl_2 + "/availeability";
-	public static String endPointTitle_5 = "Usuario por nombre de usuario";
+	public static String endPointTitle_5 = "Disponibilidad de un Usuario verificando por nombre de usuario";
 	public static String endPointReturn_5 = "Retorna un usuario";
 
 	public static String endPointArg1Title_5 = "Nombre de usuario";
 	public static String endPointArg1_5 = "user_name";
 
-
 	@ApiOperation(value = endPointTitle_5, notes = notes, response = UserAvaileability.class, tags = { tagName, })
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = endPointReturn_5, response = UserAvaileability.class),
 			@ApiResponse(code = 404, message = msg404, response = ApiError.class),
+			@ApiResponse(code = 409, message = msg409, response = ApiError.class),
+			@ApiResponse(code = 422, message = msg422, response = ApiError.class),
 			@ApiResponse(code = 500, message = msg500, response = ApiError.class) })
 	@RequestMapping(value = endPointUrl_5, produces = { produces }, method = RequestMethod.GET)
 	ResponseEntity<UserAvaileability> availeabilityGet(
 			@ApiParam(value = endPointArg1Title_5, required = true) @PathVariable(endPointArg1_5) String userName
+
+	);
+
+	// ---------------------------------------------------------------------------------------
+
+	public static String endPointUrl_6 = endPointUrl_2 + "/tokens";
+	public static String endPointTitle_6 = "Usuario por nombre de usuario";
+	public static String endPointReturn_6 = "Retorna un usuario";
+
+	public static String endPointArg1Title_6 = "Valor del token";
+	public static String endPointArg2Title_6 = "Token.";
+	public static String endPointArg1_6 = "user_name";
+	
+	public static final String msg201_6_put = "Correo electrónico (de usuario) validado";
+	
+
+	@ApiOperation(value = endPointTitle_6, notes = notes, response = UserAvaileability.class, tags = { tagName, })
+	@ApiResponses(value = {			
+			@ApiResponse(code = 201, message = msg201_6_put, response = UserAvaileability.class),
+			@ApiResponse(code = 404, message = msg404, response = ApiError.class),
+			@ApiResponse(code = 409, message = msg409, response = ApiError.class),
+			@ApiResponse(code = 422, message = msg422, response = ApiError.class),
+			@ApiResponse(code = 500, message = msg500, response = ApiError.class) })
+	@RequestMapping(value = endPointUrl_6, produces = { produces }, method = RequestMethod.PUT)
+	ResponseEntity<UserAvaileability> checkEmailPut(
+			@ApiParam(value = endPointArg1Title_6, required = true) @PathVariable(endPointArg1_6) String userName,
+			@ApiParam(value = endPointArg2Title_6, required = true) @RequestBody Token token
 
 	);
 

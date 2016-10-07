@@ -7,9 +7,8 @@ import java.sql.Timestamp;
 public class Token {
 
 	private String id = null;
-	private Boolean erased = null;
-//	private String tokenValue;
 	private Timestamp creationDate;
+	private Boolean used = null;
 
 	// -----------------------------------------------------
 	// --- id
@@ -35,57 +34,11 @@ public class Token {
 	}
 
 	// -----------------------------------------------------
-	// --- erased
-	// -----------------------------------------------------
-
-	public Token erased(Boolean erased) {
-		this.erased = erased;
-		return this;
-	}
-
-	/**
-	 * Determina si el token fue borrado o deshabilitado.
-	 * 
-	 * @return erased
-	 **/
-	@ApiModelProperty(value = "Determina si el token fue borrado o deshabilitado.")
-	public Boolean getErased() {
-		return erased;
-	}
-
-	public void setErased(Boolean erased) {
-		this.erased = erased;
-	}
-
-	// -----------------------------------------------------
-	// --- tokenValue
-	// -----------------------------------------------------
-
-	public Token tokenValue(String tokenValue) {
-		// this.tokenValue = tokenValue;
-		return this;
-	}
-
-	/**
-	 * Token.
-	 * 
-	 * @return tokenValue
-	 **/
-	@ApiModelProperty(value = "Token.")
-	public String getTokenValue() {
-		return id;
-	}
-
-	public void setTokenValue(String tokenValue) {
-		// this.tokenValue = tokenValue;
-	}
-
-	// -----------------------------------------------------
 	// --- creationDate
 	// -----------------------------------------------------
 
 	public Token creationDate(Timestamp creationDate) {
-//		this.creationDate = creationDate;
+		// this.creationDate = creationDate;
 		return this;
 	}
 
@@ -96,12 +49,30 @@ public class Token {
 	 **/
 	@ApiModelProperty(value = "Fecha y hora en que se creó el token.")
 	public Timestamp getCreationDate() {
-//		return new DateTime(System.currentTimeMillis());
+		// return new DateTime(System.currentTimeMillis());
 		return creationDate;
 	}
 
 	public void setCreationDate(Timestamp creationDate) {
 		this.creationDate = creationDate;
+	}
+
+	// -----------------------------------------------------
+	// --- used
+	// -----------------------------------------------------
+
+	/**
+	 * Determina si el token fue usado.
+	 * 
+	 * @return used
+	 **/
+	@ApiModelProperty(value = "Determina si el token fue usado.")
+	public Boolean getUsed() {
+		return used;
+	}
+
+	public void setUsed(Boolean used) {
+		this.used = used;
 	}
 
 }

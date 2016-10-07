@@ -1,0 +1,15 @@
+<image src="monserrat_logo.png" style="max-height: 15%;max-width: 100%;height: 11%;">
+
+<br>
+<br>
+<p>
+  <br/>
+    <strong>${names}</strong>, usted est&aacute; a punto de registrarse en el Sistema de Auto Gesti&oacute;n para Tutores de estudiantes de nuestro colegio.<br/>
+     <br/>Este mensaje se ha enviado porque ha generado una cuenta de usuario. Para confirmar la cuenta de usuario, por favor haga click <a href="url/${token}"> "aqu&iacute; (url/${token})</a>.
+     <br/><br/>Recuerde que su nombre de usuario es <strong>"url/${userName}"</strong>.
+</p>
+<p>El sistema le guiar&aacute; en los pr&oacute;ximos pasos a seguir.</p>
+<p>&nbsp;</p>
+
+<h3><em>Colegio Nacional de Monserrat</em></h3>
+<h4><em>&nbsp;Universidad Nacional de C&oacute;rdoba</em></h4>

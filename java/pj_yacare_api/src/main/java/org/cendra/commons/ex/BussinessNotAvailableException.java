@@ -9,7 +9,7 @@ public class BussinessNotAvailableException extends BussinessException {
 
 		super("No Disponible", throwerClass, message);
 
-		super.code = 403;
+//		super.code = 403;
 	}
 
 }
