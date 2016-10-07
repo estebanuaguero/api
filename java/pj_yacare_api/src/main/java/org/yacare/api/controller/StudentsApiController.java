@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiParam;
 
 import java.util.List;
 
+import org.cendra.commons.ex.AbstractGenericException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.yacare.MainYacare;
 import org.yacare.api.StudentsApi;
 import org.yacare.bo.academic.student.StudentBo;
+import org.yacare.model.ApiError;
 import org.yacare.model.academic.student.Student;
 
 @Controller
@@ -37,6 +39,26 @@ public class StudentsApiController implements StudentsApi {
 		return getStudentByPersonId(id);
 	}
 
+	// -------------------------------------------------------------------------------
+
+	@CrossOrigin(origins = "*")
+	public Object personPhotoGet(
+			@ApiParam(value = endPointArg1Title_3, required = true) @PathVariable(endPointArg1_3) String id,
+			@ApiParam(value = endPointArg2Title_3, required = true) @PathVariable(endPointArg2_3) String pohoto_id
+
+	) {
+
+		Object o = utilPersonPhotoGet(id);
+		
+		if (o instanceof byte[]) {
+			byte[] b = (byte[]) o;
+			
+			return b;
+		}
+
+		return o;
+	}
+
 	// ================================================================================
 
 	private ResponseEntity<Student> getStudentByPersonId(String id) {
@@ -48,8 +70,7 @@ public class StudentsApiController implements StudentsApi {
 		}
 
 		StudentBo studentBo = new StudentBo();
-		studentBo.setDataSourceWrapper(MainYacare
-				.getDataSourceWrapper());
+		studentBo.setDataSourceWrapper(MainYacare.getDataSourceWrapper());
 
 		Student student = studentBo.getStudentByPersonId(id);
 
@@ -65,7 +86,7 @@ public class StudentsApiController implements StudentsApi {
 		// return new ResponseEntity<Student>(
 		// HttpStatus.INTERNAL_SERVER_ERROR);
 		// }
- 
+
 		return new ResponseEntity<Student>(student, HttpStatus.OK);
 
 		// } catch (Exception e) {
@@ -80,12 +101,32 @@ public class StudentsApiController implements StudentsApi {
 			Integer limit) {
 
 		StudentBo studentBo = new StudentBo();
-		studentBo.setDataSourceWrapper(MainYacare
-				.getDataSourceWrapper());
+		studentBo.setDataSourceWrapper(MainYacare.getDataSourceWrapper());
 
 		List<Student> students = studentBo.getStudents(offset, limit);
 
 		return new ResponseEntity<List<Student>>(students, HttpStatus.OK);
+
+	}
+
+	// -------------------------------------------------------------------------------
+
+	private Object utilPersonPhotoGet(String id) {
+
+		try {
+
+			StudentBo studentBo = new StudentBo();
+			studentBo.setDataSourceWrapper(MainYacare.getDataSourceWrapper());			
+			studentBo.setGeneralProperties(MainYacare.generalProperties);
+
+			return studentBo.getStudentPhotoByPersonId(id);
+
+		} catch (AbstractGenericException e) {
+
+			ApiError apiError = new ApiError(e, this.getClass());
+
+			return new ResponseEntity<ApiError>(apiError, apiError.httpStatus());
+		}
 
 	}
 

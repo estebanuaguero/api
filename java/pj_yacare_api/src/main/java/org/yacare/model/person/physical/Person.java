@@ -41,11 +41,13 @@ public class Person {
 	 **/
 	@ApiModelProperty(value = "Identificador (UUID) único de la persona.")
 	public String getId() {
+		urlPhoto = "/students/" + id + "/photos/" + id;
 		return id;
 	}
 
 	public void setId(String id) {
 		this.id = id;
+		urlPhoto = "/students/" + id + "/photos/" + id;
 	}
 
 	public Person erased(Boolean erased) {
@@ -67,10 +69,7 @@ public class Person {
 		this.erased = erased;
 	}
 
-	public Person urlPhoto(String urlPhoto) {
-		this.urlPhoto = urlPhoto;
-		return this;
-	}
+
 
 	/**
 	 * URL de la foto personal.
@@ -79,10 +78,12 @@ public class Person {
 	 **/
 	@ApiModelProperty(value = "URL de la foto personal.")
 	public String getUrlPhoto() {
+		urlPhoto = "/students/" + id + "/photos/" + id;
 		return urlPhoto;
 	}
 
 	public void setUrlPhoto(String urlPhoto) {
+		urlPhoto = "/students/" + id + "/photos/" + id;
 		this.urlPhoto = urlPhoto;
 	}
 

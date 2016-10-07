@@ -1,20 +1,68 @@
 package org.yacare.bo.academic.student;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
+import org.cendra.commons.GeneralProperties;
+import org.cendra.commons.ex.ErrorBussinessException;
 import org.cendra.commons.utiljdbc.ConnectionWrapper;
 import org.yacare.bo.AbstractBo;
 import org.yacare.bo.person.physical.UtilPerson;
 import org.yacare.model.academic.student.EmergencyContact;
 import org.yacare.model.academic.student.FamilyLegalGuardian;
 import org.yacare.model.academic.student.Student;
-import org.yacare.model.academic.student.annual_enrollment.AnnualEnrollment;
 
 public class StudentBo extends AbstractBo {
 
-	private final String MSG_1 = "Error al tratar de obtener los datos del estudiante con identificador  ";
-	private final String MSG_2 = "Error al tratar de obtener los estudiantes.";
+	private GeneralProperties generalProperties;
+
+	public GeneralProperties getGeneralProperties() {
+		return generalProperties;
+	}
+
+	public void setGeneralProperties(GeneralProperties generalProperties) {
+		this.generalProperties = generalProperties;
+	}
+
+	public byte[] getStudentPhotoByPersonId(String personId) {
+
+		ConnectionWrapper connectionWrapper = null;
+
+		try {
+
+			connectionWrapper = this.getDataSourceWrapper()
+					.getConnectionWrapper();
+
+			// --------------------------------------------------------------------------------------------------------
+
+			// String sql = "SELECT * FROM yacare.f_student_by_person_id(?);";
+			//
+			// Student student = (Student) connectionWrapper.findToJsonById(sql,
+			// Student.class, personId);
+			//
+			// completeData(student, connectionWrapper);
+
+			// --------------------------------------------------------------------------------------------------------
+			
+			Properties properties = generalProperties.load();
+			String path = generalProperties.getUrlFiles() + File.separatorChar + properties.get("url.data");
+
+			return readBinary(path + File.separatorChar + "descarga.jpg");
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			throw new ErrorBussinessException(this.getClass(),
+					"Error al tratar de obtener la foto del estudiante.", e);
+		} finally {
+
+			connectionWrapper.close(connectionWrapper);
+		}
+	}
 
 	public Student getStudentByPersonId(String personId) {
 
@@ -39,15 +87,13 @@ public class StudentBo extends AbstractBo {
 			return student;
 
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException(MSG_1 + personId);
 
+			e.printStackTrace();
+			throw new ErrorBussinessException(this.getClass(),
+					"Error al tratar de obtener el estudiante.", e);
 		} finally {
 
-			if (connectionWrapper != null) {
-
-				connectionWrapper.close();
-			}
+			connectionWrapper.close(connectionWrapper);
 		}
 	}
 
@@ -92,60 +138,14 @@ public class StudentBo extends AbstractBo {
 			// --------------------------------------------------------------------------------------------------------
 
 			return students;
-
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException(MSG_2);
 
+			e.printStackTrace();
+			throw new ErrorBussinessException(this.getClass(),
+					"Error al tratar de obtener los estudiantes.", e);
 		} finally {
 
-			if (connectionWrapper != null) {
-
-				connectionWrapper.close();
-			}
-		}
-	}
-
-	public List<AnnualEnrollment> getAnnualEnrollments(String studentId,
-			Boolean lastAdmission) {
-
-		ConnectionWrapper connectionWrapper = null;
-
-		try {
-
-			connectionWrapper = this.getDataSourceWrapper()
-					.getConnectionWrapper();
-
-			// --------------------------------------------------------------------------------------------------------
-
-			String sql = "SELECT * FROM yacare.f_student(?,?);";
-
-			List<Object> listO = connectionWrapper.findToJsonArray(sql,
-					AnnualEnrollment.class);
-
-			List<AnnualEnrollment> annualEnrollments = new ArrayList<AnnualEnrollment>();
-
-			for (Object obj : listO) {
-
-				AnnualEnrollment annualEnrollment = (AnnualEnrollment) obj;
-
-				annualEnrollments.add(annualEnrollment);
-			}
-
-			// --------------------------------------------------------------------------------------------------------
-
-			return annualEnrollments;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException(MSG_2);
-
-		} finally {
-
-			if (connectionWrapper != null) {
-
-				connectionWrapper.close();
-			}
+			connectionWrapper.close(connectionWrapper);
 		}
 	}
 
@@ -174,10 +174,9 @@ public class StudentBo extends AbstractBo {
 				}
 
 				student.setEmergencyContacts(emergencyContacts);
-				
+
 				// ------------------------------------------------------------------------
-				
-				
+
 				sql = "SELECT * FROM yacare.f_student_responsible_family(?);";
 
 				list = connectionWrapper.findToJsonArray(sql,
@@ -195,6 +194,24 @@ public class StudentBo extends AbstractBo {
 
 		}
 
+	}
+
+	private byte[] readBinary(String path) throws IOException {
+		// path = path.replace('/', File.separatorChar);
+
+		byte[] imgStream = null;
+
+		FileInputStream in = new FileInputStream(path);
+
+		imgStream = new byte[in.available()];
+
+		in.read(imgStream);
+
+		// Close it if we need to
+		if (in != null)
+			in.close();
+
+		return imgStream;
 	}
 
 }

@@ -8,11 +8,14 @@ import io.swagger.annotations.ApiResponses;
 
 import java.util.List;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.yacare.model.ApiError;
 import org.yacare.model.academic.student.Student;
 
 @Api(value = "students")
@@ -22,8 +25,9 @@ public interface StudentsApi {
 	public static String notes = "El endpoint de Estudiantes devuelve el Expediente Académico (o Legajo Académico) del mismo, entre sus datos se encuentra su información personal, Colegio y Plan de Estudio que cursa, estado del estudiante, listado de matrículas anuales, y datos como cuando ingreso al colegio, cuando egreso, etc.  ";
 	public static String produces = "application/json";
 
-	public static final String msg404 = "Estudiante no encontrado";
-	public static final String msg422 = "Id de estudiante inválido";
+	public static final String msg404 = "Objeto no encontrado";
+	public static final String msg409 = "Error de negocio";
+	public static final String msg422 = "Argumento inválido";
 	public static final String msg500 = "Error interno del servidor";
 
 	// ---------------------------------------------------------------------------------------
@@ -68,6 +72,33 @@ public interface StudentsApi {
 	@RequestMapping(value = endPointUrl_2, produces = { produces }, method = RequestMethod.GET)
 	ResponseEntity<Student> getById(
 			@ApiParam(value = endPointArg1Title_2, required = true) @PathVariable(endPointArg1_2) String id
+
+	);
+
+	// ---------------------------------------------------------------------------------------
+
+	public static String endPointUrl_3 = endPointUrl_2 + "/photos/{photo_id}";
+	public static String endPointTitle_3 = "Retorna la foto del estudiante.";
+	public static String endPointReturn_3 = "Retorna la foto del estudiante";
+
+	public static String endPointArg1Title_3 = "Identificador de la persona que es estudiante";
+	public static String endPointArg1_3 = "id";
+
+	public static String endPointArg2Title_3 = "Identificador de la foto del estudiante";
+	public static String endPointArg2_3 = "photo_id";
+
+	@ResponseBody
+	@ApiOperation(value = endPointTitle_3, notes = notes, response = byte[].class, tags = { tagName, })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = endPointReturn_3, response = byte[].class),
+			@ApiResponse(code = 404, message = msg404, response = ApiError.class),
+			@ApiResponse(code = 409, message = msg409, response = ApiError.class),
+			@ApiResponse(code = 422, message = msg422, response = ApiError.class),
+			@ApiResponse(code = 500, message = msg500, response = ApiError.class) })
+	@RequestMapping(value = endPointUrl_3, produces = { MediaType.IMAGE_JPEG_VALUE }, method = RequestMethod.GET)
+	Object personPhotoGet(
+			@ApiParam(value = endPointArg1Title_3, required = true) @PathVariable(endPointArg1_3) String id,
+			@ApiParam(value = endPointArg2Title_3, required = true) @PathVariable(endPointArg2_3) String pohoto_id
 
 	);
 

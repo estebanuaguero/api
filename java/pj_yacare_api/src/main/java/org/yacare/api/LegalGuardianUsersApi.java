@@ -28,13 +28,14 @@ public interface LegalGuardianUsersApi {
 	public static String produces = "application/json";
 
 	public static final String msg404 = "Objeto no encontrado";
+	public static final String msg409 = "Error de negocio";
 	public static final String msg422 = "Argumento inválido";
 	public static final String msg500 = "Error interno del servidor";
 
 	public static final String msg201_post = "Usuario creado";
 	public static final String msg201_put = "Usuario creado";
 	// public static final String msg400 = "Campos incorrectos";
-	public static final String msg409 = "Error de negocio";
+	
 
 	// ---------------------------------------------------------------------------------------
 
