@@ -51,7 +51,7 @@ public class StudentBo extends AbstractBo {
 			Properties properties = generalProperties.load();
 			String path = generalProperties.getUrlFiles() + File.separatorChar + properties.get("url.data");
 
-			return readBinary(path + File.separatorChar + "descarga.jpg");
+			return readBinary(path + File.separatorChar + "0a42c3af-60b4-44f6-a4ba-58231c2da7bc.png");
 
 		} catch (Exception e) {
 
