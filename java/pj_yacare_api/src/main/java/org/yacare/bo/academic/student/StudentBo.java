@@ -7,6 +7,7 @@ import org.cendra.commons.utiljdbc.ConnectionWrapper;
 import org.yacare.bo.AbstractBo;
 import org.yacare.bo.person.physical.UtilPerson;
 import org.yacare.model.academic.student.EmergencyContact;
+import org.yacare.model.academic.student.FamilyLegalGuardian;
 import org.yacare.model.academic.student.Student;
 import org.yacare.model.academic.student.annual_enrollment.AnnualEnrollment;
 
@@ -173,6 +174,23 @@ public class StudentBo extends AbstractBo {
 				}
 
 				student.setEmergencyContacts(emergencyContacts);
+				
+				// ------------------------------------------------------------------------
+				
+				
+				sql = "SELECT * FROM yacare.f_student_responsible_family(?);";
+
+				list = connectionWrapper.findToJsonArray(sql,
+						FamilyLegalGuardian.class, student
+								.getPersonalInformation().getId());
+
+				List<FamilyLegalGuardian> legalGuardians = new ArrayList<FamilyLegalGuardian>();
+
+				for (Object o : list) {
+					legalGuardians.add((FamilyLegalGuardian) o);
+				}
+
+				student.setLegalGuardians(legalGuardians);
 			}
 
 		}

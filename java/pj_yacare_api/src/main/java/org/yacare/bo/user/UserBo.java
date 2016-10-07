@@ -18,7 +18,6 @@ import org.cendra.commons.ex.ErrorBussinessException;
 import org.cendra.commons.ex.ExNotFound;
 import org.cendra.commons.ex.ExUnexpectedResult;
 import org.cendra.commons.utiljdbc.ConnectionWrapper;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -30,11 +29,11 @@ import org.yacare.model.user.UserAvaileability;
 
 public class UserBo extends AbstractBo {
 
-//	 {
-//	 "userName":"14292837",
-//	 "password":"123",
-//	 "mainEmail":"dmansilla@unc.edu.ar"
-//	 }
+	// {
+	// "userName":"14292837",
+	// "password":"123",
+	// "mainEmail":"dmansilla@unc.edu.ar"
+	// }
 
 	private MailSender mailSender;
 	private GeneralProperties generalProperties;
@@ -701,9 +700,7 @@ public class UserBo extends AbstractBo {
 			htmlText = htmlText.replace("${token}", tokenValue);
 
 			helper.setText(htmlText, true);
-			
-			
-			
+
 			helper.addAttachment(
 					"cnm.png",
 					new File(
