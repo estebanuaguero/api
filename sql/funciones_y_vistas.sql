@@ -1859,6 +1859,7 @@ FROM	(
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
 -- SELECT * FROM yacare.f_student_responsible_family('ff80818144e5b96d0144e5ba611304cc');
+-- SELECT * FROM yacare.f_student_responsible_family('6f89d46c-a331-11e5-8faf-00f48900a927');
 
 
 -- ____________________________________________________ STUDENT  _________________________________________________________________
@@ -1950,6 +1951,7 @@ CREATE OR REPLACE FUNCTION yacare.f_student_by_person_id(person_id character var
 $BODY$ LANGUAGE sql VOLATILE COST 100 ROWS 1000;
 
 -- SELECT * FROM yacare.f_student_by_person_id('ff80818144e5b96d0144e5b9f28e00a0');
+-- SELECT * FROM yacare.f_student_by_person_id('6f89d46c-a331-11e5-8faf-00f48900a927');
 
 
 -- =============================================================================================================================
