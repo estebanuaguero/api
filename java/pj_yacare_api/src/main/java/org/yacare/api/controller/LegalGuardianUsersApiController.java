@@ -18,7 +18,6 @@ import org.yacare.MainYacare;
 import org.yacare.api.LegalGuardianUsersApi;
 import org.yacare.bo.user.UserBo;
 import org.yacare.model.ApiError;
-import org.yacare.model.user.Token;
 import org.yacare.model.user.User;
 import org.yacare.model.user.UserAvaileability;
 
@@ -94,12 +93,70 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 
 	@SuppressWarnings("unchecked")
 	@CrossOrigin(origins = "*")
-	public ResponseEntity<UserAvaileability> checkEmailPut(
+	public ResponseEntity<UserAvaileability> checkEmailGet(
 			@ApiParam(value = endPointArg1Title_6, required = true) @PathVariable(endPointArg1_6) String userName,
-			@ApiParam(value = endPointArg2Title_6, required = true) @RequestBody Token token) {
+			@ApiParam(value = endPointArg2Title_6, required = true) @PathVariable(endPointArg2_6) String tokenId) {
 
-		return utilCheckEmailPut(userName, token);
+		return utilCheckEmailPut(userName, tokenId);
 	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@CrossOrigin(origins = "*")
+	public ResponseEntity passwordsRecovery(
+			@ApiParam(value = endPointArg1Title_7, required = true) @PathVariable(endPointArg1_7) String userName
+
+	) {
+
+		UserBo userBo = new UserBo();
+		userBo.setDataSourceWrapper(MainYacare.getDataSourceWrapper());
+		userBo.setMailSender(mailSender);
+		userBo.setGeneralProperties(MainYacare.generalProperties);
+
+		try {
+
+			userBo.passwordsRecovery(userName);
+
+			return new ResponseEntity<UserAvaileability>(HttpStatus.OK);
+
+		} catch (AbstractGenericException e) {
+
+			ApiError apiError = new ApiError(e, this.getClass());
+
+			return new ResponseEntity<ApiError>(apiError, apiError.httpStatus());
+
+		}
+
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@CrossOrigin(origins = "*")
+	public ResponseEntity login(
+			@ApiParam(value = endPointArg1Title_8, required = true) @RequestParam(value = endPointArg1_8, required = true) String userName,
+			@ApiParam(value = endPointArg2Title_8, required = true) @RequestParam(value = endPointArg2_8, required = true) String password
+
+	) {
+
+		UserBo userBo = new UserBo();
+		userBo.setDataSourceWrapper(MainYacare.getDataSourceWrapper());
+		userBo.setMailSender(mailSender);
+		userBo.setGeneralProperties(MainYacare.generalProperties);
+
+		try {
+
+			User user = userBo.login(userName, password);
+
+			return new ResponseEntity<User>(user, HttpStatus.OK);
+
+		} catch (AbstractGenericException e) {
+
+			ApiError apiError = new ApiError(e, this.getClass());
+
+			return new ResponseEntity<ApiError>(apiError, apiError.httpStatus());
+
+		}
+	}
+
+	// -------------------------------------------------------------------------------
 
 	// ================================================================================
 
@@ -152,7 +209,6 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 
 			return new ResponseEntity<ApiError>(apiError, apiError.httpStatus());
 		}
-
 	}
 
 	// -------------------------------------------------------------------------------
@@ -236,7 +292,7 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 	// -------------------------------------------------------------------------------
 
 	@SuppressWarnings("rawtypes")
-	private ResponseEntity utilCheckEmailPut(String userName, Token token) {
+	private ResponseEntity utilCheckEmailPut(String userName, String tokenId) {
 
 		UserBo userBo = new UserBo();
 		userBo.setDataSourceWrapper(MainYacare.getDataSourceWrapper());
@@ -245,7 +301,8 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 
 		try {
 
-			UserAvaileability user = userBo.updateLegalGuardianUserCheckEMail(userName, token);
+			UserAvaileability user = userBo.updateLegalGuardianUserCheckEMail(
+					userName, tokenId);
 
 			return new ResponseEntity<UserAvaileability>(user, HttpStatus.OK);
 
@@ -256,7 +313,6 @@ public class LegalGuardianUsersApiController implements LegalGuardianUsersApi {
 			return new ResponseEntity<ApiError>(apiError, apiError.httpStatus());
 
 		}
-
 	}
 
-}
+} // END CLASS

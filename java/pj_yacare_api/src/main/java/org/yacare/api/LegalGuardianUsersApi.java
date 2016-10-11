@@ -16,12 +16,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.yacare.api.ex.ApiException;
 import org.yacare.model.ApiError;
-import org.yacare.model.user.Token;
 import org.yacare.model.user.User;
 import org.yacare.model.user.UserAvaileability;
 
 @Api(value = "guardian_users")
 public interface LegalGuardianUsersApi {
+	
+	
 
 	public static String tagName = "User";
 	public static String notes = "Usuarios que son tutores. Tutor o Responsable Legal de Estudiantes, también llamados tutores legales, o padres.";
@@ -35,7 +36,6 @@ public interface LegalGuardianUsersApi {
 	public static final String msg201_post = "Usuario creado";
 	public static final String msg201_put = "Usuario creado";
 	// public static final String msg400 = "Campos incorrectos";
-	
 
 	// ---------------------------------------------------------------------------------------
 
@@ -154,29 +154,79 @@ public interface LegalGuardianUsersApi {
 
 	// ---------------------------------------------------------------------------------------
 
-	public static String endPointUrl_6 = endPointUrl_2 + "/tokens";
-	public static String endPointTitle_6 = "Usuario por nombre de usuario";
+	public static String endPointUrl_6 = endPointUrl_2 + "/tokens/{token_id}";
+	public static String endPointTitle_6 = "Valida el correo electrónico del usuario.";
 	public static String endPointReturn_6 = "Retorna un usuario";
 
 	public static String endPointArg1Title_6 = "Valor del token";
-	public static String endPointArg2Title_6 = "Token.";
 	public static String endPointArg1_6 = "user_name";
-	
+
+	public static String endPointArg2Title_6 = "Token id. Identificador del Token.";
+	public static String endPointArg2_6 = "token_id";
+
 	public static final String msg201_6_put = "Correo electrónico (de usuario) validado";
-	
 
 	@ApiOperation(value = endPointTitle_6, notes = notes, response = UserAvaileability.class, tags = { tagName, })
-	@ApiResponses(value = {			
+	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = msg201_6_put, response = UserAvaileability.class),
 			@ApiResponse(code = 404, message = msg404, response = ApiError.class),
 			@ApiResponse(code = 409, message = msg409, response = ApiError.class),
 			@ApiResponse(code = 422, message = msg422, response = ApiError.class),
 			@ApiResponse(code = 500, message = msg500, response = ApiError.class) })
-	@RequestMapping(value = endPointUrl_6, produces = { produces }, method = RequestMethod.PUT)
-	ResponseEntity<UserAvaileability> checkEmailPut(
+	@RequestMapping(value = endPointUrl_6, produces = { produces }, method = RequestMethod.GET)
+	ResponseEntity<UserAvaileability> checkEmailGet(
 			@ApiParam(value = endPointArg1Title_6, required = true) @PathVariable(endPointArg1_6) String userName,
-			@ApiParam(value = endPointArg2Title_6, required = true) @RequestBody Token token
+			@ApiParam(value = endPointArg2Title_6, required = true) @PathVariable(endPointArg2_6) String tokenId
 
 	);
+
+	// ---------------------------------------------------------------------------------------
+
+	public static String endPointUrl_7 = endPointUrl_2 + "/passwords_recovery";
+	public static String endPointTitle_7 = "Recuperación de contraseña. Se envía la contraseña al correo electróinico del usuario.";
+	public static String endPointReturn_7 = "Retorna un usuario";
+
+	public static String endPointArg1Title_7 = "Nombre de usuario";
+	public static String endPointArg1_7 = "user_name";
+
+	@ApiOperation(value = endPointTitle_7, notes = notes, response = UserAvaileability.class, tags = { tagName, })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = endPointReturn_5),
+			@ApiResponse(code = 404, message = msg404, response = ApiError.class),
+			@ApiResponse(code = 409, message = msg409, response = ApiError.class),
+			@ApiResponse(code = 422, message = msg422, response = ApiError.class),
+			@ApiResponse(code = 500, message = msg500, response = ApiError.class) })
+	@RequestMapping(value = endPointUrl_7, produces = { produces }, method = RequestMethod.GET)
+	ResponseEntity<UserAvaileability> passwordsRecovery(
+			@ApiParam(value = endPointArg1Title_7, required = true) @PathVariable(endPointArg1_7) String userName
+
+	);
+
+	// ---------------------------------------------------------------------------------------
+
+	public static String endPointUrl_8 = endPointUrl_1 + "/logins";
+	public static String endPointTitle_8 = "Autenticación de usuario";
+	public static String endPointReturn_8 = "Retorna un usuario";
+
+	public static String endPointArg1Title_8 = "Nombre de usuario";
+	public static String endPointArg1_8 = "user_name";
+
+	public static String endPointArg2Title_8 = "Contraseña del usuario";
+	public static String endPointArg2_8 = "password";
+
+	@ApiOperation(value = endPointTitle_8, notes = notes, response = User.class, tags = { tagName })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = endPointReturn_8, response = User.class),
+			@ApiResponse(code = 404, message = msg404, response = ApiError.class),
+			@ApiResponse(code = 422, message = msg422, response = ApiError.class),
+			@ApiResponse(code = 500, message = msg500, response = ApiError.class) })
+	@RequestMapping(value = endPointUrl_8, produces = { produces }, method = RequestMethod.GET)
+	ResponseEntity<User> login(
+			@ApiParam(value = endPointArg1Title_8, required = true) @RequestParam(value = endPointArg1_8, required = true) String userName,
+			@ApiParam(value = endPointArg2Title_8, required = true) @RequestParam(value = endPointArg2_8, required = true) String password
+
+	);
+
+	// ---------------------------------------------------------------------------------------
 
 } // END CLASS

@@ -10,6 +10,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.lang.CharEncoding;
 import org.cendra.commons.GeneralProperties;
+import org.cendra.commons.ex.BussinessAutenticationException;
 import org.cendra.commons.ex.BussinessException;
 import org.cendra.commons.ex.BussinessIllegalArgumentException;
 import org.cendra.commons.ex.BussinessNotAvailableException;
@@ -142,6 +143,50 @@ public class UserBo extends AbstractBo {
 			e.printStackTrace();
 			throw new ErrorBussinessException(this.getClass(),
 					"Error al tratar de obtener los datos del usuario "
+							+ userName, e);
+
+		} finally {
+
+			connectionWrapper.close(connectionWrapper);
+
+		}
+	}
+
+	public void passwordsRecovery(String userName) {
+
+		if (userName == null || userName.trim().length() == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió recuperar la contraseña de un usuario con nombre nulo, es decir su nombre de usuario está vacio.");
+		}
+
+		ConnectionWrapper connectionWrapper = null;
+
+		try {
+
+			connectionWrapper = this.getDataSourceWrapper()
+					.getConnectionWrapper();
+
+			User user = utilGetLegalGuardianUsersByUserName(userName,
+					connectionWrapper);
+
+			if (user == null || user.getId() == null
+					|| user.getId().trim().length() == 0) {
+
+				throw new BussinessNotFoundException(this.getClass(),
+						"No se encontro el usuario con nombre " + userName);
+			}
+			
+			sendEmailPasswordsRecovery(user);
+
+			// --------------------------------------------------------------------------------------------------------
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			throw new ErrorBussinessException(this.getClass(),
+					"Error al tratar de recuperar la contraseña del usuario "
 							+ userName, e);
 
 		} finally {
@@ -462,6 +507,15 @@ public class UserBo extends AbstractBo {
 	}
 
 	public UserAvaileability updateLegalGuardianUserCheckEMail(String userName,
+			String tokenId) {
+
+		Token token = new Token();
+		token.setId(tokenId);
+
+		return updateLegalGuardianUserCheckEMail(userName, token);
+	}
+
+	public UserAvaileability updateLegalGuardianUserCheckEMail(String userName,
 			Token token) {
 
 		if (userName == null || userName.trim().length() == 0) {
@@ -564,8 +618,7 @@ public class UserBo extends AbstractBo {
 			} else {
 				throw new BussinessException(this.getClass(),
 						"No se pudo validar el correo el usuario con nombre "
-								+ user.getUserName()
-								+ ". El usuario no existe.");
+								+ userName + ". El usuario no existe.");
 			}
 
 			// --------------------------------------------------------------------------------------------------------
@@ -587,6 +640,65 @@ public class UserBo extends AbstractBo {
 
 	}
 
+	public User login(String userName, String password){
+		
+		if (userName == null || userName.trim().length() == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió autenticar un usuario con nombre nulo, es decir su nombre de usuario está vacio.");
+		}
+		
+		if (password == null || password.trim().length() == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió autenticar un usuario con password nulo, es decir su contraseña de usuario está vacia.");
+		}
+		
+		userName = userName.trim();
+		password = password.trim();
+
+		ConnectionWrapper connectionWrapper = null;
+
+		try {
+
+			connectionWrapper = this.getDataSourceWrapper()
+					.getConnectionWrapper();
+
+			User user = utilGetLegalGuardianUsersByUserName(userName,
+					connectionWrapper);
+
+			if (user == null || user.getId() == null
+					|| user.getId().trim().length() == 0) {
+
+				throw new BussinessAutenticationException(this.getClass(),
+						"El nombre de " + userName + " es incorrecto.");
+			}
+			
+			if(password.equals(user.getPassword())){
+				return user;
+			}
+			
+			throw new BussinessAutenticationException(this.getClass(),
+					"El password " + password + " no pertenece al usuario "+ userName);
+			
+			// --------------------------------------------------------------------------------------------------------
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			throw new ErrorBussinessException(this.getClass(),
+					"Error al tratar de recuperar la contraseña del usuario "
+							+ userName, e);
+
+		} finally {
+
+			connectionWrapper.close(connectionWrapper);
+
+		}
+	}
+	
 	private boolean userExists(User user, ConnectionWrapper connectionWrapper) {
 
 		return userExists(user.getUserName(), connectionWrapper);
@@ -700,18 +812,79 @@ public class UserBo extends AbstractBo {
 			htmlText = htmlText.replace("${token}", tokenValue);
 
 			helper.setText(htmlText, true);
-
-			helper.addAttachment(
-					"cnm.png",
-					new File(
-							generalProperties.getUrlFiles()
-									+ File.separatorChar
-									+ properties
-											.get("post.guardian_users.send.body.logo.email")));
+			//
+			// helper.addAttachment(
+			// "cnm.png",
+			// new File(
+			// generalProperties.getUrlFiles()
+			// + File.separatorChar
+			// + properties
+			// .get("post.guardian_users.send.body.logo.email")));
 
 			jmailSender.send(mime);
 
 		}
-
 	}
-}
+
+	private void sendEmailPasswordsRecovery(User user) throws Exception {
+
+		String name = "";
+		String lastName = "";
+
+		if (user.getPersonalInformation().getGivenNames() != null
+				&& user.getPersonalInformation().getGivenNames().size() > 0) {
+			name = user.getPersonalInformation().getGivenNames().get(0);
+		}
+
+		if (user.getPersonalInformation().getSurnames() != null
+				&& user.getPersonalInformation().getSurnames().size() > 0) {
+			lastName = user.getPersonalInformation().getSurnames().get(0);
+		}
+
+		String names = name + " " + lastName;
+		names = names.trim();
+
+		if (mailSender instanceof JavaMailSenderImpl) {
+
+			JavaMailSenderImpl jmailSender = (JavaMailSenderImpl) this.mailSender;
+
+			Properties properties = generalProperties.load();
+
+			jmailSender.setJavaMailProperties(properties);
+
+			MimeMessage mime = jmailSender.createMimeMessage();
+
+			mime.setHeader("Content-Type", "text/plain; charset=UTF-8");
+
+			mime.setSubject(
+					properties
+							.get("post.guardian_users.send.subject.email_passwords_recovery")
+							.toString(), "UTF8");
+
+			MimeMessageHelper helper = new MimeMessageHelper(mime, true,
+					CharEncoding.UTF_8);
+			helper.setFrom(properties.get("send.from.email").toString());
+			helper.setTo(user.getMainEmail());
+
+			String htmlText = generalProperties
+					.readFilePlainText(generalProperties.getUrlFiles()
+							+ File.separatorChar
+							+ properties
+									.get("post.guardian_users.send.body.email_passwords_recovery")
+									.toString());
+
+			htmlText = htmlText.replace("${names}", names);
+			htmlText = htmlText.replace("${userName}", user.getUserName());
+			htmlText = htmlText.replace("${password}", user.getPassword());
+
+			helper.setText(htmlText, true);
+
+			jmailSender.send(mime);
+		}
+	}
+
+
+
+	
+	
+} // END CLASS
