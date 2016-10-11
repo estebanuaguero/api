@@ -809,7 +809,7 @@ public class UserBo extends AbstractBo {
 
 			htmlText = htmlText.replace("${names}", names);
 			htmlText = htmlText.replace("${userName}", user.getUserName());
-			htmlText = htmlText.replace("${token}", tokenValue);
+			htmlText = htmlText.replace("${token}", user.getUserName() + "/" + tokenValue);
 
 			helper.setText(htmlText, true);
 			//

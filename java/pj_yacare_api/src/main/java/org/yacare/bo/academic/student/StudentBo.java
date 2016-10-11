@@ -2,12 +2,15 @@ package org.yacare.bo.academic.student;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import org.cendra.commons.GeneralProperties;
+import org.cendra.commons.ex.BussinessException;
+import org.cendra.commons.ex.BussinessIllegalArgumentException;
 import org.cendra.commons.ex.ErrorBussinessException;
 import org.cendra.commons.utiljdbc.ConnectionWrapper;
 import org.yacare.bo.AbstractBo;
@@ -30,6 +33,13 @@ public class StudentBo extends AbstractBo {
 
 	public byte[] getStudentPhotoByPersonId(String personId) {
 
+		if (personId == null || personId.trim().length() == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió consultar la foto de un estudiante con id nulo, es decir su identificador de estudiante (persona) está vacio.");
+		}
+
 		ConnectionWrapper connectionWrapper = null;
 
 		try {
@@ -39,19 +49,28 @@ public class StudentBo extends AbstractBo {
 
 			// --------------------------------------------------------------------------------------------------------
 
-			// String sql = "SELECT * FROM yacare.f_student_by_person_id(?);";
-			//
-			// Student student = (Student) connectionWrapper.findToJsonById(sql,
-			// Student.class, personId);
-			//
-			// completeData(student, connectionWrapper);
+			String sql = "SELECT * FROM yacare.f_student_by_person_id(?);";
+
+			Student student = (Student) connectionWrapper.findToJsonById(sql,
+					Student.class, personId);
+
+			if (student == null || student.getId() == null
+					|| student.getId().trim().length() == 0) {
+
+				throw new BussinessException(this.getClass(),
+						"No se pudo consultar el estudiante con id " + personId
+								+ ". El estudiante no existe.");
+			}
+
+			Properties properties = generalProperties.load();
+
+			String path = generalProperties.getUrlFiles() + File.separatorChar
+					+ properties.getProperty("url.data") + File.separatorChar
+					+ student.getId() + "";
+
+			return readBinary(path);
 
 			// --------------------------------------------------------------------------------------------------------
-			
-			Properties properties = generalProperties.load();
-			String path = generalProperties.getUrlFiles() + File.separatorChar + properties.get("url.data");
-
-			return readBinary(path + File.separatorChar + "0a42c3af-60b4-44f6-a4ba-58231c2da7bc.png");
 
 		} catch (Exception e) {
 
@@ -192,6 +211,250 @@ public class StudentBo extends AbstractBo {
 				student.setLegalGuardians(legalGuardians);
 			}
 
+		}
+
+	}
+
+	public Student insertStudentPhoto(String personId, byte[] photo) {
+
+		if (personId == null || personId.trim().length() == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió insertar la foto un estudiante con id nulo, es decir su identificador de estudiante (persona) está vacio.");
+		}
+
+		if (photo == null || photo.length == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió insertar la foto un estudiante con una foto nula, es decir su foto está vacia.");
+		}
+
+		ConnectionWrapper connectionWrapper = null;
+
+		try {
+
+			connectionWrapper = this.getDataSourceWrapper()
+					.getConnectionWrapper();
+
+			// connectionWrapper.begin();
+
+			// --------------------------------------------------------------------------------------------------------
+
+			String sql = "SELECT * FROM yacare.f_student_by_person_id(?);";
+
+			Student student = (Student) connectionWrapper.findToJsonById(sql,
+					Student.class, personId);
+
+			if (student == null || student.getId() == null
+					|| student.getId().trim().length() == 0) {
+
+				throw new BussinessException(this.getClass(),
+						"No se pudo insertar la foto del estudianter con id "
+								+ personId + ". El estudiante no existe.");
+			}
+
+			// sql =
+			// "SELECT d.id FROM yacare.document_object d JOIN yacare.physical_person p ON d.id = p.document_object_id WHERE p.id = ?";
+			//
+			// Object[][] t = connectionWrapper.findToTable(sql,
+			// student.getId());
+			//
+			// String photoId = null;
+			//
+			// if (t != null && t.length > 0 && t[0].length > 0
+			// && t[0][0] != null) {
+			//
+			// photoId = t[0][0].toString();
+			// }
+			//
+			// if (photoId == null || photoId.trim().length() == 0) {
+			//
+			// throw new BussinessIllegalArgumentException(
+			// this.getClass(),
+			// "Se pretendió actualizar la foto de un estudiante con foto nula, es decir el estudiante no tenía ninguna foto.");
+			// }
+
+			Properties properties = generalProperties.load();
+
+			FileOutputStream fileOuputStream = new FileOutputStream(
+					generalProperties.getUrlFiles() + File.separatorChar
+							+ properties.getProperty("url.data")
+							+ File.separatorChar + student.getId() + "");
+			fileOuputStream.write(photo);
+			fileOuputStream.close();
+
+			// --------------------------------------------------------------------------------------------------------
+
+			// connectionWrapper.commit();
+
+			return student;
+
+		} catch (Exception e) {
+
+			// connectionWrapper.rollBack();
+			e.printStackTrace();
+			throw new ErrorBussinessException(this.getClass(),
+					"No se pudo insertar la foto del estudiante con id "
+							+ personId, e);
+
+		} finally {
+			connectionWrapper.close(connectionWrapper);
+		}
+
+	}
+
+	public Student updateStudentPhoto(String personId, byte[] photo) {
+
+		if (personId == null || personId.trim().length() == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió actualizar un estudiante con id nulo, es decir su identificador de estudiante (persona) está vacio.");
+		}
+
+		if (photo == null || photo.length == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió actualizar un estudiante con una foto nula, es decir su foto está vacia.");
+		}
+
+		ConnectionWrapper connectionWrapper = null;
+
+		try {
+
+			connectionWrapper = this.getDataSourceWrapper()
+					.getConnectionWrapper();
+
+			// connectionWrapper.begin();
+
+			// --------------------------------------------------------------------------------------------------------
+
+			String sql = "SELECT * FROM yacare.f_student_by_person_id(?);";
+
+			Student student = (Student) connectionWrapper.findToJsonById(sql,
+					Student.class, personId);
+
+			if (student == null || student.getId() == null
+					|| student.getId().trim().length() == 0) {
+
+				throw new BussinessException(this.getClass(),
+						"No se pudo actualizar el estudianter con id "
+								+ personId + ". El estudiante no existe.");
+			}
+
+			// sql =
+			// "SELECT d.id FROM yacare.document_object d JOIN yacare.physical_person p ON d.id = p.document_object_id WHERE p.id = ?";
+			//
+			// Object[][] t = connectionWrapper.findToTable(sql,
+			// student.getId());
+			//
+			// String photoId = null;
+			//
+			// if (t != null && t.length > 0 && t[0].length > 0
+			// && t[0][0] != null) {
+			//
+			// photoId = t[0][0].toString();
+			// }
+			//
+			// if (photoId == null || photoId.trim().length() == 0) {
+			//
+			// throw new BussinessIllegalArgumentException(
+			// this.getClass(),
+			// "Se pretendió actualizar la foto de un estudiante con foto nula, es decir el estudiante no tenía ninguna foto.");
+			// }
+
+			Properties properties = generalProperties.load();
+
+			FileOutputStream fileOuputStream = new FileOutputStream(
+					generalProperties.getUrlFiles() + File.separatorChar
+							+ properties.getProperty("url.data")
+							+ File.separatorChar + student.getId() + "");
+			fileOuputStream.write(photo);
+			fileOuputStream.close();
+
+			// --------------------------------------------------------------------------------------------------------
+
+			// connectionWrapper.commit();
+
+			return student;
+
+		} catch (Exception e) {
+
+			// connectionWrapper.rollBack();
+			e.printStackTrace();
+			throw new ErrorBussinessException(this.getClass(),
+					"No se pudo actualizar la foto del estudiante con id "
+							+ personId, e);
+
+		} finally {
+			connectionWrapper.close(connectionWrapper);
+		}
+
+	}
+
+	public Student deleteStudentPhoto(String personId) {
+
+		if (personId == null || personId.trim().length() == 0) {
+
+			throw new BussinessIllegalArgumentException(
+					this.getClass(),
+					"Se pretendió borrar la foto un estudiante con id nulo, es decir su identificador de estudiante (persona) está vacio.");
+		}
+
+	
+
+		ConnectionWrapper connectionWrapper = null;
+
+		try {
+
+			connectionWrapper = this.getDataSourceWrapper()
+					.getConnectionWrapper();
+
+			// --------------------------------------------------------------------------------------------------------
+
+			String sql = "SELECT * FROM yacare.f_student_by_person_id(?);";
+
+			Student student = (Student) connectionWrapper.findToJsonById(sql,
+					Student.class, personId);
+
+			if (student == null || student.getId() == null
+					|| student.getId().trim().length() == 0) {
+
+				throw new BussinessException(this.getClass(),
+						"No se pudo borrar la foto del estudianter con id "
+								+ personId + ". El estudiante no existe.");
+			}
+
+			Properties properties = generalProperties.load();
+
+			String path = generalProperties.getUrlFiles() + File.separatorChar
+					+ properties.getProperty("url.data") + File.separatorChar
+					+ student.getId();
+
+			File file = new File(path);
+
+			if (file.delete() == false) {
+				throw new BussinessException(this.getClass(),
+						"No se pudo borrar la foto del estudiante con id "
+								+ personId);
+			}
+
+			// --------------------------------------------------------------------------------------------------------
+
+			return student;
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			throw new ErrorBussinessException(this.getClass(),
+					"No se pudo borrar la foto del estudiante con id "
+							+ personId, e);
+
+		} finally {
+			connectionWrapper.close(connectionWrapper);
 		}
 
 	}

@@ -96,7 +96,7 @@ public interface StudentsApi {
 			@ApiResponse(code = 422, message = msg422, response = ApiError.class),
 			@ApiResponse(code = 500, message = msg500, response = ApiError.class) })
 	@RequestMapping(value = endPointUrl_3, produces = { MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE }, method = RequestMethod.GET)
-	Object personPhotoGet(
+	ResponseEntity personPhotoGet(
 			@ApiParam(value = endPointArg1Title_3, required = true) @PathVariable(endPointArg1_3) String id,
 			@ApiParam(value = endPointArg2Title_3, required = true) @PathVariable(endPointArg2_3) String pohoto_id
 
